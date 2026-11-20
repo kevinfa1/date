@@ -426,6 +426,55 @@
   border-color: #fff;
 }
 
+.cfa-marker.landmark {
+  background: rgba(15, 23, 42, 0.88);
+  border-color: #fbbf24;
+  color: #fde68a;
+  font-size: 0.7rem;
+}
+
+.cfa-hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.cfa-chip {
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #fff;
+}
+
+.cfa-sensor-pill {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(86, 225, 232, 0.2);
+  color: #56e1e8;
+}
+
+.cfa-conn-box {
+  background: var(--surface);
+  border-radius: var(--r-s);
+  padding: 11px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.8125rem;
+}
+
+.cfa-conn-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
 @media (max-width: 960px) {
   .cfa-persona-bar,
   .cfa-kpi-grid,

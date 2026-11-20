@@ -18,11 +18,12 @@ import {
   CORRIDOR_ZONES,
   COSTANERA_MTI_GEOJSON,
   MARENA_PROTECTED_GEOJSON,
-  PERSONAS,
+  PUBLIC_LANDMARKS,
+  sensorForYear,
   SINAPRED_HAZARD_GEOJSON,
   type CorridorYear,
   type CorridorZone,
-  type PersonaId,
+  type Lang,
   type ZoneId,
 } from './cfaCorridorData'
 import { DataTable, type Column } from './DataTable'
@@ -34,8 +35,8 @@ const NASA_VIIRS_NIGHT =
   'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/VIIRS_Black_Marble/default/2016-01-01/GoogleMapsCompatible_Level8/{z}/{y}/{x}.png'
 
 const CORRIDOR_OVERVIEW = {
-  center: [-85.895, 11.245] as [number, number],
-  zoom: 10.6,
+  center: [-85.895, 11.255] as [number, number],
+  zoom: 10.4,
   pitch: 46,
   bearing: -24,
 }
@@ -48,7 +49,7 @@ const BASE_STYLE: StyleSpecification = {
       tileSize: 256,
       maxzoom: 17,
       tiles: [ESRI_IMAGERY],
-      attribution: 'Esri World Imagery · NASA GIBS VIIRS · Copernicus DEM · GHSL/Sentinel-2 · MTI / MARENA / INETER / INIDE (referencial)',
+      attribution: 'Esri World Imagery · NASA DMSP-OLS / VIIRS Black Marble · Copernicus DEM · MTI / MARENA / INETER / INIDE',
     },
     viirs: {
       type: 'raster',
@@ -60,55 +61,115 @@ const BASE_STYLE: StyleSpecification = {
   },
   layers: [
     { id: 'bg', type: 'background', paint: { 'background-color': '#06112b' } },
-    {
-      id: 'satellite',
-      type: 'raster',
-      source: 'satellite',
-      paint: { 'raster-brightness-max': 0.85, 'raster-contrast': 0.1 },
-    },
-    {
-      id: 'viirs',
-      type: 'raster',
-      source: 'viirs',
-      layout: { visibility: 'none' },
-      paint: { 'raster-opacity': 0.72 },
-    },
+    { id: 'satellite', type: 'raster', source: 'satellite', paint: { 'raster-brightness-max': 0.84, 'raster-contrast': 0.1 } },
+    { id: 'viirs', type: 'raster', source: 'viirs', layout: { visibility: 'visible' }, paint: { 'raster-opacity': 0.65 } },
   ],
 }
 
-export function CfaObservatory() {
-  const [personaId, setPersonaId] = useState<PersonaId>('investor')
+const COPY = {
+  es: {
+    eyebrow: 'Inteligencia Territorial Abierta · Sin exposición de obras privadas',
+    headline: '30 años de evidencia satelital y datos públicos del Pacífico Sur',
+    lead: 'Analiza cómo evolucionan Ostional, San Juan del Sur y Playa Gigante (Tola) desde los primeros registros de luces nocturnas (1995) hasta 2035, cruzando infraestructura oficial (MTI, ECI) y resguardo ambiental (MARENA, SINAPRED).',
+    chips: ['Luces nocturnas 1995–2025', 'Solo hitos públicos emblemáticos', 'Conectividad ECI · Costanera · Peñas Blancas'],
+    mapTitle: 'Corredor Ostional · San Juan del Sur · Playa Gigante (Tola)',
+    mapSub: 'Haz clic en los hitos públicos para enfocar la cámara 3D o alterna la capa de luces nocturnas.',
+    allCorridor: 'Corredor completo',
+    timeline: 'Línea de tiempo (1995–2035)',
+    play: 'Reproducir',
+    pause: 'Pausar',
+    layers: 'Capas satelitales y Gobierno',
+    lViirs: 'Luces nocturnas (NASA VIIRS)',
+    lUrban: 'Huella construida 3D',
+    lCostanera: 'Carretera Costanera (MTI)',
+    lMarena: 'Refugio La Flor (MARENA)',
+    lSinapred: 'Cota baja costera (SINAPRED)',
+    connTitle: 'Conectividad estratégica',
+    connCostanera: 'Carretera Costanera (MTI)',
+    connEci: 'Aeropuerto Costa Esmeralda (ECI)',
+    connBorder: 'Frontera Peñas Blancas (CR)',
+    kNtl: 'Índice de luces nocturnas',
+    kBuilt: 'Huella construida 2025 → 2035',
+    kAir: 'Acceso aéreo (ECI · Tola)',
+    kSafe: 'Cota segura + Vivienda INIDE',
+    chartTitle: 'Dinámica económica y urbana',
+    chartSub: 'Consolidación nocturna (VIIRS/DMSP-OLS) frente a expansión construida (ha) · 1995–2035',
+    ddTitle: 'Debida diligencia territorial y mercado',
+    engTitle: 'Estándar constructivo CFA para este tipo de zona',
+    engSub: 'Sin revelar ubicaciones privadas de obra: así responde nuestra ingeniería a las condiciones reales de este polo.',
+    tableTitle: 'Matriz comparativa del corredor (1995–2035)',
+    tableSub: 'Haz clic en un hito para enfocarlo en el mapa 3D o exporta el resumen completo en CSV.',
+    csvBtn: 'Descargar dossier CSV',
+    methodTitle: 'Nota metodológica y seguridad de datos',
+    methodBody: 'Por seguridad de proyectos y propietarios, este observatorio no publica coordenadas de obras de CFA. Los puntos ancla corresponden exclusivamente a hitos geográficos públicos. La serie 1995–2012 refleja el archivo histórico DMSP-OLS (~1 km) y 2012–2025 el sensor NASA VIIRS Black Marble (~500 m); en producción las series y polígonos de MTI, MARENA e INETER/SINAPRED se conectan a las capas GIS digitalizadas.',
+  },
+  en: {
+    eyebrow: 'Open Territorial Intelligence · Zero private project coordinates exposed',
+    headline: '30 years of satellite evidence and public data across Nicaragua’s South Pacific',
+    lead: 'Explore how Ostional, San Juan del Sur, and Playa Gigante (Tola) evolved from the earliest night-light records (1995) to 2035, cross-referenced with public infrastructure (MTI, ECI Airport) and environmental/hazard zones (MARENA, SINAPRED).',
+    chips: ['Nighttime lights 1995–2025', 'Public landmarks only', 'ECI Airport · Coastal Highway · Peñas Blancas'],
+    mapTitle: 'Ostional · San Juan del Sur · Playa Gigante (Tola) Corridor',
+    mapSub: 'Click any public landmark to fly the 3D camera or toggle the nighttime lights layer.',
+    allCorridor: 'Full corridor',
+    timeline: 'Timeline (1995–2035)',
+    play: 'Play',
+    pause: 'Pause',
+    layers: 'Satellite & Government Layers',
+    lViirs: 'Nighttime lights (NASA VIIRS)',
+    lUrban: '3D built-up footprint',
+    lCostanera: 'Coastal Highway (MTI)',
+    lMarena: 'La Flor Refuge (MARENA)',
+    lSinapred: 'Low coastal elevation (SINAPRED)',
+    connTitle: 'Strategic connectivity',
+    connCostanera: 'Coastal Highway (MTI)',
+    connEci: 'Costa Esmeralda Airport (ECI)',
+    connBorder: 'Peñas Blancas Border (CR)',
+    kNtl: 'Nighttime Light Index',
+    kBuilt: 'Built-up footprint 2025 → 2035',
+    kAir: 'Air access (ECI · Tola)',
+    kSafe: 'Safe elevation + INIDE housing',
+    chartTitle: 'Economic & urban momentum',
+    chartSub: 'Nighttime light consolidation (VIIRS/DMSP-OLS) vs. built-up area (ha) · 1995–2035',
+    ddTitle: 'Territorial & market due diligence',
+    engTitle: 'CFA construction standard for this zone profile',
+    engSub: 'Without disclosing private project coordinates: how our engineering responds to this hub’s real conditions.',
+    tableTitle: 'Corridor comparative matrix (1995–2035)',
+    tableSub: 'Click any landmark to focus the 3D map or export the full summary as CSV.',
+    csvBtn: 'Download CSV dossier',
+    methodTitle: 'Methodology & data security note',
+    methodBody: 'For project and owner security, this observatory never publishes coordinates of private CFA builds. Map pins represent public geographic landmarks only. The 1995–2012 series reflects historical DMSP-OLS (~1 km) and 2012–2025 reflects NASA VIIRS Black Marble (~500 m); in production, MTI, MARENA, and INETER/SINAPRED geometries load from digitized GIS layers.',
+  },
+} as const
+
+export function CfaObservatory({ lang = 'es' }: { lang?: Lang }) {
   const [zoneId, setZoneId] = useState<ZoneId>('sjds')
   const [yearIdx, setYearIdx] = useState<number>(CORRIDOR_YEARS.indexOf(2025))
   const [playing, setPlaying] = useState(false)
 
-  // Capas del visor territorial
+  const [showViirs, setShowViirs] = useState(true)
   const [showUrban3d, setShowUrban3d] = useState(true)
   const [showCostanera, setShowCostanera] = useState(true)
   const [showMarena, setShowMarena] = useState(true)
   const [showSinapred, setShowSinapred] = useState(true)
-  const [showViirs, setShowViirs] = useState(false)
 
   const mapContainerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<maplibregl.Map | null>(null)
   const mapReadyRef = useRef(false)
   const markersRef = useRef<Map<ZoneId, HTMLButtonElement>>(new Map())
 
+  const t = COPY[lang]
   const year: CorridorYear = CORRIDOR_YEARS[yearIdx]
-  const persona = PERSONAS.find((p) => p.id === personaId) ?? PERSONAS[0]
   const zone = CORRIDOR_ZONES.find((z) => z.id === zoneId) ?? CORRIDOR_ZONES[1]
   const cellsGeoJson = useMemo(() => buildCorridorCells(), [])
 
-  // Animación de la línea de tiempo 2015 → 2035
   useEffect(() => {
     if (!playing) return
     const timer = window.setInterval(() => {
       setYearIdx((prev) => (prev + 1) % CORRIDOR_YEARS.length)
-    }, 1400)
+    }, 1250)
     return () => window.clearInterval(timer)
   }, [playing])
 
-  // Inicialización del mapa MapLibre GL
   useEffect(() => {
     const el = mapContainerRef.current
     if (!el) return
@@ -132,52 +193,18 @@ export function CfaObservatory() {
     map.on('load', () => {
       mapReadyRef.current = true
 
-      // 1. Área protegida MARENA (Refugio La Flor)
       map.addSource('marena', { type: 'geojson', data: MARENA_PROTECTED_GEOJSON })
-      map.addLayer({
-        id: 'marena-fill',
-        type: 'fill',
-        source: 'marena',
-        paint: { 'fill-color': '#10b981', 'fill-opacity': 0.28 },
-      })
-      map.addLayer({
-        id: 'marena-line',
-        type: 'line',
-        source: 'marena',
-        paint: { 'line-color': '#34d399', 'line-width': 2, 'line-dasharray': [3, 2] },
-      })
+      map.addLayer({ id: 'marena-fill', type: 'fill', source: 'marena', paint: { 'fill-color': '#10b981', 'fill-opacity': 0.28 } })
+      map.addLayer({ id: 'marena-line', type: 'line', source: 'marena', paint: { 'line-color': '#34d399', 'line-width': 2, 'line-dasharray': [3, 2] } })
 
-      // 2. Franjas de amenaza costera (INETER / SINAPRED)
       map.addSource('sinapred', { type: 'geojson', data: SINAPRED_HAZARD_GEOJSON })
-      map.addLayer({
-        id: 'sinapred-fill',
-        type: 'fill',
-        source: 'sinapred',
-        paint: { 'fill-color': '#ef4444', 'fill-opacity': 0.34 },
-      })
-      map.addLayer({
-        id: 'sinapred-line',
-        type: 'line',
-        source: 'sinapred',
-        paint: { 'line-color': '#f87171', 'line-width': 1.5 },
-      })
+      map.addLayer({ id: 'sinapred-fill', type: 'fill', source: 'sinapred', paint: { 'fill-color': '#ef4444', 'fill-opacity': 0.34 } })
+      map.addLayer({ id: 'sinapred-line', type: 'line', source: 'sinapred', paint: { 'line-color': '#f87171', 'line-width': 1.5 } })
 
-      // 3. Trazado Carretera Costanera (MTI)
       map.addSource('costanera', { type: 'geojson', data: COSTANERA_MTI_GEOJSON })
-      map.addLayer({
-        id: 'costanera-glow',
-        type: 'line',
-        source: 'costanera',
-        paint: { 'line-color': '#f59e0b', 'line-width': 7, 'line-opacity': 0.28 },
-      })
-      map.addLayer({
-        id: 'costanera-line',
-        type: 'line',
-        source: 'costanera',
-        paint: { 'line-color': '#fbbf24', 'line-width': 3 },
-      })
+      map.addLayer({ id: 'costanera-glow', type: 'line', source: 'costanera', paint: { 'line-color': '#f59e0b', 'line-width': 7, 'line-opacity': 0.28 } })
+      map.addLayer({ id: 'costanera-line', type: 'line', source: 'costanera', paint: { 'line-color': '#fbbf24', 'line-width': 3 } })
 
-      // 4. Crecimiento urbano 3D (celdas satelitales + proyección)
       map.addSource('corridor-cells', { type: 'geojson', data: cellsGeoJson })
       map.addLayer({
         id: 'urban-3d',
@@ -185,19 +212,13 @@ export function CfaObservatory() {
         source: 'corridor-cells',
         filter: ['<=', ['get', 'year'], 2025],
         paint: {
-          'fill-extrusion-color': [
-            'case',
-            ['>', ['get', 'year'], 2025],
-            '#56e1e8',
-            '#3b82f6',
-          ],
+          'fill-extrusion-color': ['case', ['>', ['get', 'year'], 2025], '#56e1e8', '#3b82f6'],
           'fill-extrusion-height': ['*', ['get', 'height'], 9],
           'fill-extrusion-base': 0,
           'fill-extrusion-opacity': 0.88,
         },
       })
 
-      // Marcadores clicables de los 3 polos del corredor
       CORRIDOR_ZONES.forEach((z) => {
         const btn = document.createElement('button')
         btn.type = 'button'
@@ -205,21 +226,19 @@ export function CfaObservatory() {
         btn.textContent = z.name
         btn.addEventListener('click', () => {
           setZoneId(z.id)
-          map.flyTo({
-            center: [z.lon, z.lat],
-            zoom: z.zoom,
-            pitch: z.pitch,
-            bearing: z.bearing,
-            duration: 1100,
-          })
+          map.flyTo({ center: [z.lon, z.lat], zoom: z.zoom, pitch: z.pitch, bearing: z.bearing, duration: 1000 })
         })
         markerButtons.set(z.id, btn)
-        const m = new maplibregl.Marker({ element: btn, anchor: 'bottom' })
-          .setLngLat([z.lon, z.lat])
-          .addTo(map)
-        createdMarkers.push(m)
+        createdMarkers.push(new maplibregl.Marker({ element: btn, anchor: 'bottom' }).setLngLat([z.lon, z.lat]).addTo(map))
       })
       markersRef.current = markerButtons
+
+      PUBLIC_LANDMARKS.forEach((lm) => {
+        const tag = document.createElement('span')
+        tag.className = 'cfa-marker landmark'
+        tag.textContent = lm.name[lang]
+        createdMarkers.push(new maplibregl.Marker({ element: tag, anchor: 'bottom' }).setLngLat([lm.lon, lm.lat]).addTo(map))
+      })
     })
 
     return () => {
@@ -232,18 +251,13 @@ export function CfaObservatory() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cellsGeoJson])
 
-  // Sincroniza estado visual de marcadores activos
   useEffect(() => {
-    markersRef.current.forEach((btn, id) => {
-      btn.classList.toggle('active', id === zoneId)
-    })
+    markersRef.current.forEach((btn, id) => btn.classList.toggle('active', id === zoneId))
   }, [zoneId])
 
-  // Sincroniza año y visibilidad de capas en MapLibre
   useEffect(() => {
     const map = mapRef.current
     if (!map || !mapReadyRef.current) return
-
     const vis = (on: boolean) => (on ? 'visible' : 'none')
 
     if (map.getLayer('urban-3d')) {
@@ -251,10 +265,8 @@ export function CfaObservatory() {
       map.setFilter('urban-3d', ['<=', ['get', 'year'], year])
       map.setPaintProperty('urban-3d', 'fill-extrusion-color', [
         'case',
-        ['==', ['get', 'year'], year],
-        '#f4ffff',
-        ['>', ['get', 'year'], 2025],
-        '#56e1e8',
+        ['==', ['get', 'year'], year], '#f4ffff',
+        ['>', ['get', 'year'], 2025], '#56e1e8',
         '#3b82f6',
       ])
     }
@@ -284,22 +296,16 @@ export function CfaObservatory() {
     setZoneId(target)
     const z = CORRIDOR_ZONES.find((item) => item.id === target)
     if (z && map) {
-      map.flyTo({
-        center: [z.lon, z.lat],
-        zoom: z.zoom,
-        pitch: z.pitch,
-        bearing: z.bearing,
-        duration: 1000,
-      })
+      map.flyTo({ center: [z.lon, z.lat], zoom: z.zoom, pitch: z.pitch, bearing: z.bearing, duration: 1000 })
     }
   }
 
-  const activePoint = zone.series.find((s) => s.year === year) ?? zone.series[2]
+  const activePoint = zone.series.find((s) => s.year === year) ?? zone.series[5]
 
-  const auditColumns: Column<CorridorZone>[] = [
+  const columns: Column<CorridorZone>[] = [
     {
       id: 'name',
-      header: 'Polo del corredor',
+      header: lang === 'es' ? 'Hito del corredor' : 'Corridor hub',
       cell: (r) => (
         <button type="button" className="link" onClick={() => focusZone(r.id)}>
           <strong>{r.name}</strong>
@@ -309,93 +315,71 @@ export function CfaObservatory() {
       csv: (r) => `${r.name} (${r.municipality})`,
     },
     {
-      id: 'built2025',
-      header: 'Huella 2025 (ha)',
+      id: 'ntl',
+      header: lang === 'es' ? 'Luces 1995→2025' : 'Lights 1995→2025',
       align: 'right',
-      cell: (r) => <span className="num">{r.built2025Ha} ha</span>,
-      csv: (r) => r.built2025Ha,
+      cell: (r) => <strong className="num">+{r.ntlGrowth1995_2025Pct}%</strong>,
+      csv: (r) => `+${r.ntlGrowth1995_2025Pct}%`,
     },
     {
-      id: 'growth',
-      header: 'Expansión 2015–2035',
+      id: 'built',
+      header: lang === 'es' ? 'Huella 2025→2035' : 'Footprint 2025→2035',
       align: 'right',
-      cell: (r) => <strong className="num">+{r.growthPct2015_2035}%</strong>,
-      csv: (r) => `${r.growthPct2015_2035}%`,
+      cell: (r) => <span className="num">{r.built2025Ha} → {r.built2035Ha} ha</span>,
+      csv: (r) => `${r.built2025Ha} -> ${r.built2035Ha} ha`,
+    },
+    {
+      id: 'eci',
+      header: lang === 'es' ? 'Aeropuerto ECI' : 'ECI Airport',
+      align: 'right',
+      cell: (r) => <span className="num">{r.eciAirportMin} min</span>,
+      csv: (r) => `${r.eciAirportMin} min`,
     },
     {
       id: 'costanera',
-      header: 'Distancia Costanera (MTI)',
+      header: 'Costanera (MTI)',
       align: 'right',
       cell: (r) => <span className="num">{r.costaneraKm.toFixed(1)} km</span>,
-      csv: (r) => r.costaneraKm,
-    },
-    {
-      id: 'elevation',
-      header: 'Cota CFA (Copernicus DEM)',
-      align: 'right',
-      cell: (r) => <span className="num">+{r.elevationM} m</span>,
-      csv: (r) => r.elevationM,
+      csv: (r) => `${r.costaneraKm.toFixed(1)} km`,
     },
     {
       id: 'inide',
-      header: 'Vivienda municipal (INIDE)',
+      header: 'INIDE',
       align: 'right',
       cell: (r) => <span className="num">+{r.inideHousingGrowthPct}%</span>,
-      csv: (r) => `${r.inideHousingGrowthPct}%`,
+      csv: (r) => `+${r.inideHousingGrowthPct}%`,
     },
     {
-      id: 'marena',
-      header: 'Resguardo MARENA / SINAPRED',
-      cell: (r) => <span className="small">{r.sinapredStatus}</span>,
-      csv: (r) => `${r.marenaStatus} | ${r.sinapredStatus}`,
+      id: 'safe',
+      header: 'MARENA / SINAPRED',
+      cell: (r) => <span className="small">{r.sinapredStatus[lang]}</span>,
+      csv: (r) => `${r.marenaStatus[lang]} | ${r.sinapredStatus[lang]}`,
     },
   ]
 
   return (
     <div className="cfa-stack">
-      {/* 1. Hero narrativo + selector de Buyer Persona */}
       <Card as="section" className="cfa-hero">
-        <span className="cfa-eyebrow">Observatorio Territorial CFA · Pacífico Sur, Nicaragua</span>
-        <h1>{persona.headline}</h1>
-        <p className="cfa-hero-lead">{persona.thesis}</p>
-
-        <div className="cfa-persona-bar" role="tablist" aria-label="Perfil de visitante">
-          {PERSONAS.map((p) => (
-            <button
-              key={p.id}
-              type="button"
-              role="tab"
-              aria-selected={personaId === p.id}
-              className={`cfa-persona-btn${personaId === p.id ? ' on' : ''}`}
-              onClick={() => setPersonaId(p.id)}
-            >
-              <strong>{p.label}</strong>
-              <span>{p.subtitle}</span>
-            </button>
+        <span className="cfa-eyebrow">{t.eyebrow}</span>
+        <h1>{t.headline}</h1>
+        <p className="cfa-hero-lead">{t.lead}</p>
+        <div className="cfa-hero-meta">
+          {t.chips.map((c) => (
+            <span key={c} className="cfa-chip">{c}</span>
           ))}
         </div>
       </Card>
 
-      {/* 2. Visor geoespacial 3D del corredor Ostional → SJDS → Playa Gigante */}
       <Card as="section" className="cfa-map-card">
         <div className="cfa-map-header">
           <div>
-            <h2>Corredor Ostional · San Juan del Sur · Playa Gigante (Tola)</h2>
-            <p className="muted small" style={{ margin: '6px 0 0' }}>
-              Crecimiento urbano satelital cruzado con capas públicas de Nicaragua (MTI, MARENA, INETER/SINAPRED).
-            </p>
+            <h2>{t.mapTitle}</h2>
+            <p className="muted small" style={{ margin: '6px 0 0' }}>{t.mapSub}</p>
           </div>
           <div className="cfa-zone-pills">
-            <button type="button" className="cfa-zone-pill" onClick={() => focusZone('all')}>
-              Ver corredor completo
-            </button>
+            <button type="button" className="cfa-zone-pill" onClick={() => focusZone('all')}>{t.allCorridor}</button>
             {CORRIDOR_ZONES.map((z) => (
-              <button
-                key={z.id}
-                type="button"
-                className={`cfa-zone-pill${zoneId === z.id ? ' on' : ''}`}
-                onClick={() => focusZone(z.id)}
-              >
+              <button key={z.id} type="button" className={`cfa-zone-pill${zoneId === z.id ? ' on' : ''}`} onClick={() => focusZone(z.id)}>
                 {z.name}
               </button>
             ))}
@@ -406,36 +390,27 @@ export function CfaObservatory() {
           <div className="cfa-map-stage">
             <div ref={mapContainerRef} className="cfa-map-canvas" />
             <div className="cfa-map-overlay-badge">
-              <span><strong>{zone.name}</strong> · {year}</span>
-              <span style={{ opacity: 0.75 }}>|</span>
-              <span>{activePoint.builtHa} ha construidas</span>
+              <strong>{zone.name} · {year}</strong>
+              <span className="cfa-sensor-pill">{sensorForYear(year, lang)}</span>
+              <span className="num">NTL {activePoint.nightLightIdx}/100 · {activePoint.builtHa} ha</span>
             </div>
-            <div className="cfa-map-legend" aria-label="Leyenda de capas">
-              <span className="cfa-legend-item">
-                <i className="cfa-swatch" style={{ background: '#3b82f6' }} /> Construido (≤ 2025)
-              </span>
-              <span className="cfa-legend-item">
-                <i className="cfa-swatch" style={{ background: '#56e1e8' }} /> Proyectado (2030–2035)
-              </span>
-              <span className="cfa-legend-item">
-                <i className="cfa-swatch line" style={{ background: '#fbbf24' }} /> Costanera (MTI)
-              </span>
-              <span className="cfa-legend-item">
-                <i className="cfa-swatch" style={{ background: '#10b981' }} /> Refugio La Flor (MARENA)
-              </span>
-              <span className="cfa-legend-item">
-                <i className="cfa-swatch" style={{ background: '#ef4444' }} /> Cota baja (SINAPRED)
-              </span>
+            <div className="cfa-map-legend">
+              <span className="cfa-legend-item"><i className="cfa-swatch" style={{ background: '#fbbf24' }} /> VIIRS / DMSP-OLS</span>
+              <span className="cfa-legend-item"><i className="cfa-swatch" style={{ background: '#3b82f6' }} /> ≤ 2025</span>
+              <span className="cfa-legend-item"><i className="cfa-swatch" style={{ background: '#56e1e8' }} /> 2030–2035</span>
+              <span className="cfa-legend-item"><i className="cfa-swatch line" style={{ background: '#fbbf24' }} /> Costanera (MTI)</span>
+              <span className="cfa-legend-item"><i className="cfa-swatch" style={{ background: '#10b981' }} /> MARENA</span>
+              <span className="cfa-legend-item"><i className="cfa-swatch" style={{ background: '#ef4444' }} /> SINAPRED</span>
             </div>
           </div>
 
           <aside className="cfa-map-sidebar">
             <div className="cfa-sidebar-section">
-              <span className="cfa-sidebar-kicker">Línea de tiempo urbana</span>
+              <span className="cfa-sidebar-kicker">{t.timeline}</span>
               <div className="cfa-year-row">
                 <span className="cfa-year-big">{year}</span>
                 <Button variant="secondary" onClick={() => setPlaying((v) => !v)}>
-                  {playing ? 'Pausar' : 'Reproducir'}
+                  {playing ? t.pause : t.play}
                 </Button>
               </div>
               <input
@@ -444,103 +419,83 @@ export function CfaObservatory() {
                 max={CORRIDOR_YEARS.length - 1}
                 step={1}
                 value={yearIdx}
-                aria-label="Año del escenario urbano"
+                aria-label={t.timeline}
                 onChange={(e) => {
                   setPlaying(false)
                   setYearIdx(Number(e.target.value))
                 }}
               />
               <div className="cfa-year-ticks">
-                {CORRIDOR_YEARS.map((y) => (
-                  <span key={y}>{y}</span>
-                ))}
+                <span>1995</span><span>2012</span><span>2025</span><span>2035</span>
               </div>
             </div>
 
             <div className="cfa-sidebar-section">
-              <span className="cfa-sidebar-kicker">Capas satelitales y Gobierno</span>
+              <span className="cfa-sidebar-kicker">{t.layers}</span>
               <div className="cfa-switches">
-                <Switch checked={showUrban3d} onChange={setShowUrban3d}>
-                  Crecimiento urbano 3D
-                </Switch>
-                <Switch checked={showCostanera} onChange={setShowCostanera}>
-                  Carretera Costanera (MTI)
-                </Switch>
-                <Switch checked={showMarena} onChange={setShowMarena}>
-                  Área protegida (MARENA)
-                </Switch>
-                <Switch checked={showSinapred} onChange={setShowSinapred}>
-                  Amenaza costera (SINAPRED)
-                </Switch>
-                <Switch checked={showViirs} onChange={setShowViirs}>
-                  Luces nocturnas (NASA VIIRS)
-                </Switch>
+                <Switch checked={showViirs} onChange={setShowViirs}>{t.lViirs}</Switch>
+                <Switch checked={showUrban3d} onChange={setShowUrban3d}>{t.lUrban}</Switch>
+                <Switch checked={showCostanera} onChange={setShowCostanera}>{t.lCostanera}</Switch>
+                <Switch checked={showMarena} onChange={setShowMarena}>{t.lMarena}</Switch>
+                <Switch checked={showSinapred} onChange={setShowSinapred}>{t.lSinapred}</Switch>
               </div>
             </div>
 
             <div className="cfa-sidebar-section">
-              <div className="cfa-persona-callout">
-                <strong>Lectura para {persona.label}</strong>
-                {zone.personaHighlight[personaId]}
+              <span className="cfa-sidebar-kicker">{t.connTitle}</span>
+              <div className="cfa-conn-box">
+                <div className="cfa-conn-row"><span>{t.connCostanera}</span><strong>{zone.costaneraKm.toFixed(1)} km</strong></div>
+                <div className="cfa-conn-row"><span>{t.connEci}</span><strong>{zone.eciAirportMin} min</strong></div>
+                <div className="cfa-conn-row"><span>{t.connBorder}</span><strong>{zone.penasBlancasMin} min</strong></div>
               </div>
             </div>
           </aside>
         </div>
       </Card>
 
-      {/* 3. KPIs del polo seleccionado */}
-      <section className="cfa-kpi-grid" aria-label={`Indicadores clave de ${zone.name}`}>
-        <Kpi label="Huella construida 2025 → 2035" value={`${zone.built2025Ha} → ${zone.built2035Ha} ha`} num>
-          <span className="muted small">+{zone.growthPct2015_2035}% desde 2015 (satélite)</span>
+      <section className="cfa-kpi-grid">
+        <Kpi label={t.kNtl} value={`${zone.ntl2025}/100`} num color="var(--accent-deep)">
+          <span className="muted small">+{zone.ntlGrowth1995_2025Pct}% (1995 → 2025)</span>
         </Kpi>
-        <Kpi label="Conectividad Costanera (MTI)" value={`${zone.costaneraKm.toFixed(1)} km`} num color="var(--accent-deep)">
-          <span className="muted small">−{zone.travelGainMin} min de traslado estimado</span>
+        <Kpi label={t.kBuilt} value={`${zone.built2025Ha} → ${zone.built2035Ha} ha`} num>
+          <span className="muted small">{zone.tag[lang]}</span>
         </Kpi>
-        <Kpi label="Cota segura CFA (DEM)" value={`+${zone.elevationM} m s.n.m.`} num color="var(--emerald)">
-          <span className="muted small">Fuera de cota baja SINAPRED</span>
+        <Kpi label={t.kAir} value={`${zone.eciAirportMin} min`} num>
+          <span className="muted small">Costanera {zone.costaneraKm.toFixed(1)} km</span>
         </Kpi>
-        <Kpi label="Cobertura verde (Sentinel-2)" value={`${zone.vegetation2025Pct}%`} num>
-          <span className="muted small">+{zone.inideHousingGrowthPct}% vivienda municipal (INIDE)</span>
+        <Kpi label={t.kSafe} value={`+${zone.elevationM} m`} num color="var(--emerald)">
+          <span className="muted small">+{zone.inideHousingGrowthPct}% INIDE</span>
         </Kpi>
       </section>
 
-      {/* 4. Gráfica de expansión vs vegetación + Cruce con datos públicos de Nicaragua */}
       <div className="cfa-two-col">
         <Card as="section">
-          <div className="row">
-            <div>
-              <h3>Expansión urbana vs. cobertura vegetal · {zone.name}</h3>
-              <p className="muted small" style={{ margin: '4px 0 0' }}>
-                Serie histórica satelital (2015–2025) y escenario de consolidación (2030–2035).
-              </p>
-            </div>
-            <span className="badge not_yet">{zone.tag}</span>
-          </div>
-
-          <div style={{ width: '100%', height: 270, marginTop: 18 }}>
+          <h3>{t.chartTitle} · {zone.name}</h3>
+          <p className="muted small" style={{ margin: '4px 0 0' }}>{t.chartSub}</p>
+          <div style={{ width: '100%', height: 280, marginTop: 16 }}>
             <ResponsiveContainer>
               <ComposedChart data={zone.series} margin={{ top: 10, right: 12, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,2,61,0.08)" />
                 <XAxis dataKey="year" tick={{ fontSize: 12 }} />
                 <YAxis yAxisId="ha" tick={{ fontSize: 12 }} unit=" ha" />
-                <YAxis yAxisId="pct" orientation="right" domain={[0, 100]} tick={{ fontSize: 12 }} unit="%" />
+                <YAxis yAxisId="ntl" orientation="right" domain={[0, 100]} tick={{ fontSize: 12 }} />
                 <Tooltip />
                 <Legend />
                 <Area
                   yAxisId="ha"
                   type="monotone"
                   dataKey="builtHa"
-                  name="Área construida (ha)"
+                  name={lang === 'es' ? 'Área construida (ha)' : 'Built-up area (ha)'}
                   stroke="#0a7c84"
                   fill="rgba(86, 225, 232, 0.35)"
                   strokeWidth={2.5}
                 />
                 <Line
-                  yAxisId="pct"
+                  yAxisId="ntl"
                   type="monotone"
-                  dataKey="vegetationPct"
-                  name="Cobertura verde (%)"
-                  stroke="#0f8a5f"
+                  dataKey="nightLightIdx"
+                  name={lang === 'es' ? 'Índice luces nocturnas (0–100)' : 'Nighttime Light Index (0–100)'}
+                  stroke="#d97706"
                   strokeWidth={2.5}
                   dot={{ r: 4 }}
                 />
@@ -550,115 +505,57 @@ export function CfaObservatory() {
         </Card>
 
         <Card as="section">
-          <h3>Cruce con fuentes públicas de Nicaragua</h3>
-          <p className="muted small" style={{ margin: '4px 0 0' }}>
-            {zone.summary}
-          </p>
-
+          <h3>{t.ddTitle}</h3>
+          <p className="muted small" style={{ margin: '4px 0 0' }}>{zone.summary[lang]}</p>
           <div className="cfa-gov-list">
             <div className="cfa-gov-row">
-              <div className="cfa-gov-row-head">
-                <strong>Carretera Costanera Pacífico Sur</strong>
-                <span className="cfa-gov-tag">MTI</span>
-              </div>
-              <span className="small muted">
-                Acceso a {zone.costaneraKm.toFixed(1)} km del eje costero; ahorro estimado de {zone.travelGainMin} min frente a rutas anteriores.
-              </span>
+              <div className="cfa-gov-row-head"><strong>{lang === 'es' ? 'Perfil de mercado' : 'Market profile'}</strong><span className="cfa-gov-tag">INIDE · ECI</span></div>
+              <span className="small muted">{zone.marketProfile[lang]}</span>
             </div>
-
             <div className="cfa-gov-row">
-              <div className="cfa-gov-row-head">
-                <strong>Resguardo ambiental y áreas protegidas</strong>
-                <span className="cfa-gov-tag">MARENA</span>
-              </div>
-              <span className="small muted">{zone.marenaStatus}</span>
+              <div className="cfa-gov-row-head"><strong>{lang === 'es' ? 'Resguardo ambiental' : 'Environmental compliance'}</strong><span className="cfa-gov-tag">MARENA</span></div>
+              <span className="small muted">{zone.marenaStatus[lang]}</span>
             </div>
-
             <div className="cfa-gov-row">
-              <div className="cfa-gov-row-head">
-                <strong>Amenaza costera y drenaje</strong>
-                <span className="cfa-gov-tag">INETER · SINAPRED</span>
-              </div>
-              <span className="small muted">{zone.sinapredStatus}</span>
-            </div>
-
-            <div className="cfa-gov-row">
-              <div className="cfa-gov-row-head">
-                <strong>Dinámica demográfica y vivienda</strong>
-                <span className="cfa-gov-tag">INIDE</span>
-              </div>
-              <span className="small muted">
-                Municipio {zone.municipality}: +{zone.inideHousingGrowthPct}% en parque habitacional y demanda residencial sostenida.
-              </span>
+              <div className="cfa-gov-row-head"><strong>{lang === 'es' ? 'Seguridad ante amenazas' : 'Hazard & elevation'}</strong><span className="cfa-gov-tag">INETER · SINAPRED</span></div>
+              <span className="small muted">{zone.sinapredStatus[lang]}</span>
             </div>
           </div>
         </Card>
       </div>
 
-      {/* 5. Matriz Clima -> Respuesta Constructiva CFA */}
       <Card as="section">
-        <div className="row">
-          <div>
-            <h2>Cómo responde la ingeniería de CFA en {zone.name}</h2>
-            <p className="muted small" style={{ margin: '6px 0 0' }}>
-              Cada tendencia climática y territorial (NASA POWER · Copernicus DEM) se traduce en una especificación constructiva verificable.
-            </p>
-          </div>
-          <Button variant="primary" onClick={() => focusZone(zone.id)}>
-            {persona.ctaLabel}
-          </Button>
-        </div>
-
+        <h2>{t.engTitle}</h2>
+        <p className="muted small" style={{ margin: '6px 0 0' }}>{t.engSub}</p>
         <div className="cfa-eng-grid">
-          {zone.engineering.map((item) => (
-            <article key={item.id} className="cfa-eng-card">
+          {zone.standards.map((s) => (
+            <article key={s.id} className="cfa-eng-card">
               <div className="cfa-eng-top">
-                <div>
-                  <span className="muted small">{item.source}</span>
-                  <div className="cfa-eng-metric">{item.variable}</div>
-                </div>
-                <span className={`cfa-risk-pill ${item.riskLevel}`}>{item.riskLevel}</span>
-              </div>
-              <div className="small">
-                <strong>Tendencia:</strong> {item.trend} · <span className="muted">{item.horizon}</span>
+                <strong>{s.condition[lang]}</strong>
+                <span className="cfa-gov-tag">{s.metric}</span>
               </div>
               <div className="cfa-eng-solution">
-                <strong>Respuesta CFA · {item.cfaSolutionTitle}</strong>
-                <p>{item.cfaSolution}</p>
+                <strong>{s.solutionTitle[lang]}</strong>
+                <p>{s.solutionDesc[lang]}</p>
               </div>
             </article>
           ))}
         </div>
       </Card>
 
-      {/* 6. Tabla comparativa del corredor con exportación CSV lista para Excel */}
       <Card as="section">
-        <h3 style={{ marginBottom: 6 }}>Matriz comparativa del corredor Pacífico Sur</h3>
-        <p className="muted small" style={{ marginTop: 0, marginBottom: 16 }}>
-          Haz clic en cualquier polo para enfocarlo en el mapa 3D o descarga la tabla completa en CSV para revisión técnica.
-        </p>
+        <h3 style={{ marginBottom: 6 }}>{t.tableTitle}</h3>
+        <p className="muted small" style={{ marginTop: 0, marginBottom: 16 }}>{t.tableSub}</p>
         <DataTable
-          columns={auditColumns}
+          columns={columns}
           rows={CORRIDOR_ZONES}
           rowKey={(r) => r.id}
-          ariaLabel="Comparativa del corredor Ostional, San Juan del Sur y Playa Gigante"
-          csvName="corredor-cfa-rivas-sur"
-          csvLabel="Descargar auditoría CSV"
+          ariaLabel={t.tableTitle}
+          csvName={`cfa-pacific-south-${lang}`}
+          csvLabel={t.csvBtn}
         />
-
-        <Disclosure title="Nota metodológica y estado de los datos (Prototipo v1)" className="spaced">
-          <p className="small muted" style={{ marginTop: 0 }}>
-            Este prototipo reutiliza el motor cartográfico 3D (<code>MapLibre GL</code>), los gráficos (<code>Recharts</code>) y el exportador
-            CSV (<code>DataTable</code>) de DATEX, junto con teselas satelitales en vivo de <strong>Esri World Imagery</strong> y{' '}
-            <strong>NASA GIBS VIIRS Black Marble</strong>.
-          </p>
-          <p className="small muted" style={{ marginBottom: 0 }}>
-            <strong>Alcance del prototipo v1:</strong> las geometrías del trazado de la Costanera (MTI), el polígono del Refugio La Flor
-            (MARENA), las franjas de amenaza costera (INETER/SINAPRED) y las series 2015–2035 de Ostional, San Juan del Sur y Playa Gigante
-            son valores base estructurados para validar la narrativa y la arquitectura. En producción se sustituyen directamente en{' '}
-            <code>src/cfaCorridorData.ts</code> (o archivos GeoJSON en <code>public/static-api/</code>) por las capas digitalizadas oficiales
-            y las extracciones precalculadas de GHSL/Sentinel-2 y NASA POWER.
-          </p>
+        <Disclosure title={t.methodTitle} className="spaced">
+          <p className="small muted" style={{ margin: 0 }}>{t.methodBody}</p>
         </Disclosure>
       </Card>
     </div>

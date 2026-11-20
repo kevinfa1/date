@@ -345,7 +345,7 @@ export default function App() {
 
         {phase === 'cfa' && (
           <Suspense fallback={<Loader label={lang === 'es' ? 'Cargando observatorio CFA…' : 'Loading CFA observatory…'} />}>
-            <CfaObservatory />
+            <CfaObservatory lang={lang} />
           </Suspense>
         )}
 
