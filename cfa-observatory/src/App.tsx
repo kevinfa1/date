@@ -101,6 +101,7 @@ const COPY = {
     indexLabel: 'Índice Eficiencia Constructiva',
     sqmLabel: 'Costo ref. llave en mano',
     rankingTitle: 'Competitividad constructiva regional (0–100)',
+    macroSource: 'Ref. macro: Banco Mundial / FMI · Costos: benchmark sectorial regional',
     corridorEyebrow: 'VISOR 3D CONTINUO · OSTIONAL → SAN JUAN DEL SUR → PLAYA GIGANTE / TOLA',
     corridorTitle: 'Desarrollo costero continuo y luces nocturnas (1995–2035)',
     corridorSub: 'Mueve la línea de tiempo para observar cómo se encienden las luces nocturnas y se consolida la franja de 45 km.',
@@ -139,6 +140,7 @@ const COPY = {
     indexLabel: 'Construction Efficiency Index',
     sqmLabel: 'Turnkey ref. cost',
     rankingTitle: 'Regional construction competitiveness (0–100)',
+    macroSource: 'Macro ref.: World Bank / IMF · Costs: regional construction benchmark',
     corridorEyebrow: 'CONTINUOUS 3D VIEWER · OSTIONAL → SAN JUAN DEL SUR → PLAYA GIGANTE / TOLA',
     corridorTitle: 'Continuous coastal growth & nighttime lights (1995–2035)',
     corridorSub: 'Scrub the timeline to watch nighttime lights ignite and connect along the 45 km coastline.',
@@ -203,6 +205,9 @@ export default function App() {
 
   useEffect(() => {
     document.documentElement.lang = lang
+    const url = new URL(window.location.href)
+    url.searchParams.set('lang', lang)
+    window.history.replaceState({}, '', url)
   }, [lang])
 
   // 1. Inicialización del Globo Terráqueo superior
@@ -443,7 +448,7 @@ export default function App() {
           </div>
 
           <div className="topbar-right">
-            <a className="back-link" href="https://constructorafloresaburto.com" rel="noopener">
+            <a className="back-link" href={`https://constructorafloresaburto.com/?lang=${lang}`} rel="noopener">
               {t.backHome}
             </a>
             <div className="segmented" role="group" aria-label="Language">
@@ -537,6 +542,7 @@ export default function App() {
                       <strong className="num small">{c.constructionIndex}</strong>
                     </div>
                   ))}
+                  <span className="muted" style={{ fontSize: '0.7rem', marginTop: 4 }}>{t.macroSource}</span>
                 </div>
 
                 <Button
