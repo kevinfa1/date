@@ -351,7 +351,7 @@ export default function App() {
         source: 'corridor-cells',
         filter: ['<=', ['get', 'year'], 2025],
         paint: {
-          'fill-extrusion-color': ['case', ['>', ['get', 'year'], 2025], '#e2bd82', '#38bdf8'],
+          'fill-extrusion-color': ['case', ['>', ['get', 'year'], 2025], '#e2bd82', '#5c8aa8'],
           'fill-extrusion-height': ['*', ['get', 'height'], 8],
           'fill-extrusion-base': 0,
           'fill-extrusion-opacity': 0.78,
@@ -408,7 +408,7 @@ export default function App() {
         'case',
         ['==', ['get', 'year'], year], '#fffbeb',
         ['>', ['get', 'year'], 2025], '#d4aa6a',
-        '#38bdf8',
+        '#5c8aa8',
       ])
     }
 
@@ -581,7 +581,7 @@ export default function App() {
                 </div>
                 <div className="cfa-map-legend">
                   <span className="cfa-legend-item"><i className="cfa-swatch" style={{ background: '#fde047' }} /> {t.lLights}</span>
-                  <span className="cfa-legend-item"><i className="cfa-swatch" style={{ background: '#38bdf8' }} /> ≤ 2025</span>
+                  <span className="cfa-legend-item"><i className="cfa-swatch" style={{ background: '#5c8aa8' }} /> ≤ 2025</span>
                   <span className="cfa-legend-item"><i className="cfa-swatch" style={{ background: '#d4aa6a' }} /> 2030–2035</span>
                   <span className="cfa-legend-item"><i className="cfa-swatch line" style={{ background: '#e2bd82' }} /> {t.lCostanera}</span>
                 </div>
