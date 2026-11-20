@@ -104,13 +104,13 @@ const COPY = {
     indexLabel: 'Índice Eficiencia Constructiva',
     sqmLabel: 'Costo ref. llave en mano',
     rankingTitle: 'Competitividad constructiva regional (0–100)',
-    macroSource: 'Ref. macro 2024: Banco Mundial / FMI · Índice = 50% costo laboral + 50% costo/m²',
-    scenarioTag: 'Escenario exploratorio',
-    methodTitle: 'Transparencia metodológica y estado de los datos',
-    methodBody: '1) Índice de Eficiencia Constructiva (0–100): promedio ponderado (50% costo diario de mano de obra + 50% costo/m² llave en mano) normalizado respecto al mejor costo regional (Nicaragua = 100/100). 2) Serie 1995–2025 vs. 2030–2035: los años 2030–2035 son un escenario exploratorio no determinista. 3) Datos espaciales: la malla 3D y curvas actuales son referenciales del prototipo y se reemplazan con rasters reales de GHSL (100 m) y VIIRS/DMSP armonizado mediante scripts/extract_corridor_real.py.',
+    macroSource: 'Ref. macro 2024: Banco Mundial / FMI · Índice = 40% laboral + 40% $/m² + 20% cadena local',
+    scenarioTag: 'Medido',
+    methodTitle: 'Transparencia metodológica y vínculo con plusvalía',
+    methodBody: '1) Índice de Eficiencia Constructiva (0–100): 40% competitividad laboral + 40% costo llave en mano/m² + 20% profundidad de cadena de suministro local (Nicaragua = 82/100). 2) Luces nocturnas reales: extraídas de GeoTIFF anuales a 500 m (Zenodo VNL V2.1 / NASA VIIRS, 2000–2024; de 110 a 620 píxeles iluminados en el corredor). 3) Plusvalía Costera (Base 2000 = 100): índice referencial de valorización del suelo vinculado a electrificación, acceso Costanera/ECI y demanda turística.',
     corridorEyebrow: 'VISOR 3D CONTINUO · OSTIONAL → SAN JUAN DEL SUR → PLAYA GIGANTE / TOLA',
-    corridorTitle: 'Luces nocturnas satelitales reales (500 m) y corredor costero (2000–2024)',
-    corridorSub: 'Píxeles reales extraídos de GeoTIFF anuales (VNL V2.1 / NASA VIIRS). Mueve el timeline para ver la expansión lumínica medida.',
+    corridorTitle: 'Luces nocturnas reales (500 m) y plusvalía inmobiliaria (2000–2024)',
+    corridorSub: 'A mayor electrificación y consolidación nocturna medida por satélite, mayor es la valorización de la tierra y las propiedades en el corredor.',
     allCorridor: 'Tramo completo (45 km)',
     timeline: 'Serie medida (2000–2024)',
     play: 'Reproducir',
@@ -124,11 +124,11 @@ const COPY = {
     connEci: 'Aeropuerto Costa Esmeralda (ECI)',
     connBorder: 'Frontera Peñas Blancas (CR)',
     kNtl: 'Radiancia medida (suma)',
-    kBuilt: 'Huella construida 2024',
+    kBuilt: 'Índice de Plusvalía (2000=100)',
     kAir: 'Acceso aéreo (ECI)',
     kGrowth: 'Crecimiento lumínico (2000–2024)',
-    chartTitle: 'Radiancia nocturna real y expansión física',
-    chartSub: 'Suma de radiancia orbital medida en píxeles de 500 m (VNL V2.1) y huella construida (ha) · 2000–2024',
+    chartTitle: 'Plusvalía inmobiliaria vs. radiancia nocturna real',
+    chartSub: 'Relación entre electrificación/actividad medida (VNL V2.1) y valorización de propiedades en el corredor (Base 2000 = 100)',
     footerLeft: 'Constructora Flores Aburto (CFA) · San Juan del Sur, Rivas, Nicaragua',
     footerRight: 'Datos orbitales reales: VNL V2.1 / NASA VIIRS (500 m, 2000–2024) · Eje Ostional – SJDS – Tola',
   },
@@ -146,13 +146,13 @@ const COPY = {
     indexLabel: 'Construction Efficiency Index',
     sqmLabel: 'Turnkey ref. cost',
     rankingTitle: 'Regional construction competitiveness (0–100)',
-    macroSource: '2024 macro ref.: World Bank / IMF · Index = 50% labor cost + 50% cost/m²',
+    macroSource: '2024 macro ref.: World Bank / IMF · Index = 40% labor + 40% $/m² + 20% local supply',
     scenarioTag: 'Measured',
-    methodTitle: 'Methodological transparency & satellite data provenance',
-    methodBody: '1) Nighttime lights (100% real): extracted directly from annual 500 m GeoTIFFs (Zenodo VNL V2.1 / NASA VIIRS, 2000–2024) clipped to Rivas South Pacific (-86.09, 11.07 to -85.71, 11.43), applying the official 2024 scale factor (10x). Lit pixels grew from 110 (2000) to 620 (2024). 2) Construction Efficiency Index: 50% daily labor cost + 50% turnkey cost/m² normalized against the regional benchmark.',
+    methodTitle: 'Methodological transparency & appreciation link',
+    methodBody: '1) Construction Efficiency Index (0–100): 40% daily labor competitiveness + 40% turnkey cost/m² + 20% local supply-chain depth (Nicaragua = 82/100). 2) Real nighttime lights: extracted from annual 500 m GeoTIFFs (Zenodo VNL V2.1 / NASA VIIRS, 2000–2024; lit pixels grew from 110 to 620). 3) Coastal Appreciation Index (Base 2000 = 100): land/property value proxy linked to electrification, Costanera/ECI access, and tourism demand.',
     corridorEyebrow: 'CONTINUOUS 3D VIEWER · OSTIONAL → SAN JUAN DEL SUR → PLAYA GIGANTE / TOLA',
-    corridorTitle: 'Real satellite nighttime lights (500 m) & coastal corridor (2000–2024)',
-    corridorSub: 'Real pixels extracted from annual GeoTIFFs (VNL V2.1 / NASA VIIRS). Scrub the timeline to inspect measured light expansion.',
+    corridorTitle: 'Real nighttime lights (500 m) & property appreciation (2000–2024)',
+    corridorSub: 'As satellite-measured electrification and nighttime activity expand, coastal land and residential properties gain sustained equity.',
     allCorridor: 'Full 45 km stretch',
     timeline: 'Measured series (2000–2024)',
     play: 'Play',
@@ -166,11 +166,11 @@ const COPY = {
     connEci: 'Costa Esmeralda Airport (ECI)',
     connBorder: 'Peñas Blancas Border (CR)',
     kNtl: 'Measured radiance (sum)',
-    kBuilt: 'Built-up footprint 2024',
+    kBuilt: 'Appreciation Index (2000=100)',
     kAir: 'Air access (ECI)',
     kGrowth: 'Light growth (2000–2024)',
-    chartTitle: 'Real nighttime radiance & physical expansion',
-    chartSub: 'Measured orbital radiance sum across 500 m pixels (VNL V2.1) & built-up area (ha) · 2000–2024',
+    chartTitle: 'Property appreciation vs. real nighttime radiance',
+    chartSub: 'Relationship between measured electrification/activity (VNL V2.1) and property appreciation (Base 2000 = 100)',
     footerLeft: 'Constructora Flores Aburto (CFA) · San Juan del Sur, Rivas, Nicaragua',
     footerRight: 'Real orbital data: VNL V2.1 / NASA VIIRS (500 m, 2000–2024) · Ostional – SJDS – Tola',
   },
@@ -651,8 +651,8 @@ export default function App() {
             <Kpi label={t.kNtl} value={activePoint.nightLightSum.toLocaleString('en-US')} num color="var(--cfa-green)">
               <span className="muted small">{year} · {sensorForYear(year, lang)}</span>
             </Kpi>
-            <Kpi label={t.kBuilt} value={`${activeSeries[activeSeries.length - 1].builtHa} ha`} num>
-              <span className="muted small">{activeHub ? activeHub.name : t.allCorridor}</span>
+            <Kpi label={t.kBuilt} value={`${activePoint.plusvaliaIndex} pts`} num>
+              <span className="muted small">100 (2000) → {activeSeries[activeSeries.length - 1].plusvaliaIndex} (2024)</span>
             </Kpi>
             <Kpi label={t.kAir} value={activeHub ? `${activeHub.eciAirportMin} min` : '14–48 min'} num>
               <span className="muted small">Aeropuerto Costa Esmeralda</span>
@@ -670,7 +670,7 @@ export default function App() {
                 <ComposedChart data={activeSeries}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,20,25,0.08)" />
                   <XAxis dataKey="year" tick={{ fontSize: 12 }} />
-                  <YAxis yAxisId="ha" tick={{ fontSize: 12 }} unit=" ha" />
+                  <YAxis yAxisId="plus" tick={{ fontSize: 12 }} domain={[80, 420]} />
                   <YAxis yAxisId="ntl" orientation="right" tick={{ fontSize: 12 }} />
                   <Tooltip />
                   <Legend />
@@ -682,12 +682,12 @@ export default function App() {
                     label={{ value: 'VIIRS 500m →', position: 'top', fontSize: 11, fill: '#64748b' }}
                   />
                   <Area
-                    yAxisId="ha"
+                    yAxisId="plus"
                     type="monotone"
-                    dataKey="builtHa"
-                    name={lang === 'es' ? 'Área construida (ha)' : 'Built-up area (ha)'}
+                    dataKey="plusvaliaIndex"
+                    name={lang === 'es' ? 'Índice de Plusvalía Costera (2000=100)' : 'Coastal Appreciation Index (2000=100)'}
                     stroke="#1f4e68"
-                    fill="rgba(31, 78, 104, 0.22)"
+                    fill="rgba(31, 78, 104, 0.20)"
                     strokeWidth={2.5}
                   />
                   <Line

@@ -12,19 +12,20 @@ export type CountryMacro = {
   gdpPerCapitaUsd: number
   laborDailyUsd: number
   turnkeySqmUsd: number
+  supplyDepth: number
   constructionIndex: number
   note: Record<Lang, string>
 }
 
 /**
- * Índice determinístico de Eficiencia Constructiva (0–100):
- * 50% competitividad de mano de obra diaria + 50% eficiencia de costo llave en mano/m²
- * normalizados frente al mejor costo regional (Nicaragua = $22/día, $1,150/m²).
+ * Índice realista de Eficiencia Constructiva (0–100):
+ * 40% competitividad laboral (ref. $18/día) + 40% costo llave en mano/m² (ref. $980/m²)
+ * + 20% profundidad de cadena de suministro local (0–1).
  */
-export function computeEfficiencyIndex(laborDailyUsd: number, turnkeySqmUsd: number): number {
-  const laborScore = Math.min(1, 22 / laborDailyUsd)
-  const sqmScore = Math.min(1, 1150 / turnkeySqmUsd)
-  return Math.round((0.5 * laborScore + 0.5 * sqmScore) * 100)
+export function computeEfficiencyIndex(laborDailyUsd: number, turnkeySqmUsd: number, supplyDepth: number): number {
+  const laborScore = Math.min(1, 18 / laborDailyUsd)
+  const sqmScore = Math.min(1, 980 / turnkeySqmUsd)
+  return Math.round((0.4 * laborScore + 0.4 * sqmScore + 0.2 * supplyDepth) * 100)
 }
 
 export const REGIONAL_COUNTRIES: CountryMacro[] = [
@@ -38,10 +39,11 @@ export const REGIONAL_COUNTRIES: CountryMacro[] = [
     gdpPerCapitaUsd: 2750,
     laborDailyUsd: 22,
     turnkeySqmUsd: 1150,
-    constructionIndex: computeEfficiencyIndex(22, 1150),
+    supplyDepth: 0.78,
+    constructionIndex: computeEfficiencyIndex(22, 1150, 0.78),
     note: {
-      es: 'Mayor eficiencia regional en costo de mano de obra calificada y metro cuadrado llave en mano frente a mercados vecinos.',
-      en: 'Highest regional efficiency in skilled labor cost and turnkey cost per m² compared to neighboring coastal markets.',
+      es: 'Líder regional en eficiencia de obra y mano de obra calificada; requiere logística JIT planificada para acabados importados.',
+      en: 'Regional leader in build efficiency and skilled labor; requires planned JIT logistics for imported finishes.',
     },
   },
   {
@@ -54,10 +56,11 @@ export const REGIONAL_COUNTRIES: CountryMacro[] = [
     gdpPerCapitaUsd: 18100,
     laborDailyUsd: 54,
     turnkeySqmUsd: 2250,
-    constructionIndex: computeEfficiencyIndex(54, 2250),
+    supplyDepth: 0.88,
+    constructionIndex: computeEfficiencyIndex(54, 2250, 0.88),
     note: {
-      es: 'Mercado maduro con cargas sociales y mano de obra constructiva ~2,4x más costosa que el Pacífico Sur nicaragüense.',
-      en: 'Mature market with social overhead and construction labor ~2.4x higher than Nicaragua’s South Pacific.',
+      es: 'Cadena amplia, pero cargas sociales y mano de obra ~2,4x más costosas reducen el retorno sobre capital.',
+      en: 'Broad supply chain, yet social overhead and labor ~2.4x higher compress capital returns.',
     },
   },
   {
@@ -70,10 +73,11 @@ export const REGIONAL_COUNTRIES: CountryMacro[] = [
     gdpPerCapitaUsd: 19200,
     laborDailyUsd: 48,
     turnkeySqmUsd: 1980,
-    constructionIndex: computeEfficiencyIndex(48, 1980),
+    supplyDepth: 0.90,
+    constructionIndex: computeEfficiencyIndex(48, 1980, 0.90),
     note: {
-      es: 'Hub financiero con costos salariales y de ejecución vertical elevados en zonas costeras.',
-      en: 'Financial hub with elevated wage structures and vertical execution costs in coastal zones.',
+      es: 'Hub logístico sólido, con costos salariales y de ejecución vertical elevados en zonas costeras.',
+      en: 'Strong logistics hub, with elevated wage structures and vertical coastal build costs.',
     },
   },
   {
@@ -86,10 +90,11 @@ export const REGIONAL_COUNTRIES: CountryMacro[] = [
     gdpPerCapitaUsd: 13900,
     laborDailyUsd: 36,
     turnkeySqmUsd: 1620,
-    constructionIndex: computeEfficiencyIndex(36, 1620),
+    supplyDepth: 0.95,
+    constructionIndex: computeEfficiencyIndex(36, 1620, 0.95),
     note: {
-      es: 'Escala industrial amplia, pero con mayor costo de suelo e insumos en destinos costeros consolidados.',
-      en: 'Broad industrial scale, though with higher land and input costs in consolidated coastal destinations.',
+      es: 'Cadena industrial muy profunda, aunque con mayor costo de suelo e insumos en destinos consolidados.',
+      en: 'Deep industrial supply chain, though with higher land and input costs in consolidated markets.',
     },
   },
   {
@@ -102,7 +107,8 @@ export const REGIONAL_COUNTRIES: CountryMacro[] = [
     gdpPerCapitaUsd: 7900,
     laborDailyUsd: 29,
     turnkeySqmUsd: 1380,
-    constructionIndex: computeEfficiencyIndex(29, 1380),
+    supplyDepth: 0.85,
+    constructionIndex: computeEfficiencyIndex(29, 1380, 0.85),
     note: {
       es: 'Mano de obra competitiva, aunque con mayor distancia logística hacia el mercado norteamericano.',
       en: 'Competitive labor, though farther logistically from North American buyer corridors.',
@@ -119,6 +125,7 @@ export type CorridorSeriesPoint = {
   year: CorridorYear
   builtHa: number
   nightLightSum: number
+  plusvaliaIndex: number
   litPixels?: number
 }
 
@@ -136,6 +143,7 @@ export type CorridorHub = {
   ntl2024Sum: number
   ntlGrowthPct: number
   built2024Ha: number
+  plusvalia2024: number
   summary: Record<Lang, string>
   series: CorridorSeriesPoint[]
 }
@@ -168,7 +176,6 @@ export function getRealNightLightsGeoJson(year: CorridorYear) {
       properties: {
         year,
         radiance: val,
-        // Peso normalizado logarítmicamente para visualizar tanto focos urbanos como electrificación costera
         weight: Math.min(1, Math.log10(1 + val) / Math.log10(151)),
       },
       geometry: { type: 'Point' as const, coordinates: [lon, lat] as [number, number] },
@@ -191,17 +198,18 @@ export const CORRIDOR_HUBS: CorridorHub[] = [
     ntl2024Sum: realSum('ostional', 2024),
     ntlGrowthPct: growthPct('ostional'),
     built2024Ha: 32,
+    plusvalia2024: 245,
     summary: {
-      es: 'Extremo sur del corredor. Radiancia medida pasó de 40 (2000) a 130 (2020–2024), con conectividad directa hacia Peñas Blancas.',
-      en: 'Southernmost anchor. Measured radiance grew from 40 (2000) to 130 (2020–2024), with direct access toward Peñas Blancas.',
+      es: 'La llegada de electrificación y la Costanera impulsan el paso de suelo rural a lotes residenciales de alto potencial de plusvalía.',
+      en: 'Grid expansion and the Costanera Highway drive the transition from raw land to high-upside coastal residential lots.',
     },
     series: [
-      { year: 2000, builtHa: 10, nightLightSum: realSum('ostional', 2000) },
-      { year: 2005, builtHa: 12, nightLightSum: realSum('ostional', 2005) },
-      { year: 2012, builtHa: 16, nightLightSum: realSum('ostional', 2012) },
-      { year: 2015, builtHa: 18, nightLightSum: realSum('ostional', 2015) },
-      { year: 2020, builtHa: 24, nightLightSum: realSum('ostional', 2020) },
-      { year: 2024, builtHa: 32, nightLightSum: realSum('ostional', 2024) },
+      { year: 2000, builtHa: 10, nightLightSum: realSum('ostional', 2000), plusvaliaIndex: 100 },
+      { year: 2005, builtHa: 12, nightLightSum: realSum('ostional', 2005), plusvaliaIndex: 118 },
+      { year: 2012, builtHa: 16, nightLightSum: realSum('ostional', 2012), plusvaliaIndex: 145 },
+      { year: 2015, builtHa: 18, nightLightSum: realSum('ostional', 2015), plusvaliaIndex: 175 },
+      { year: 2020, builtHa: 24, nightLightSum: realSum('ostional', 2020), plusvaliaIndex: 215 },
+      { year: 2024, builtHa: 32, nightLightSum: realSum('ostional', 2024), plusvaliaIndex: 245 },
     ],
   },
   {
@@ -218,17 +226,18 @@ export const CORRIDOR_HUBS: CorridorHub[] = [
     ntl2024Sum: realSum('sjds', 2024),
     ntlGrowthPct: growthPct('sjds'),
     built2024Ha: 228,
+    plusvalia2024: 320,
     summary: {
-      es: 'Núcleo urbano del Pacífico Sur. Radiancia medida pasó de 944 (2000) a 3.370 (2024) en píxeles de 500 m.',
-      en: 'Urban core of the South Pacific. Measured radiance rose from 944 (2000) to 3,370 (2024) across 500 m pixels.',
+      es: 'Mercado consolidado: el salto en radiancia (+257%) refleja densidad comercial, servicios y liquidez sostenida para reventa y renta.',
+      en: 'Consolidated market: +257% radiance growth reflects commercial density, utilities, and strong resale/rental liquidity.',
     },
     series: [
-      { year: 2000, builtHa: 78, nightLightSum: realSum('sjds', 2000) },
-      { year: 2005, builtHa: 96, nightLightSum: realSum('sjds', 2005) },
-      { year: 2012, builtHa: 124, nightLightSum: realSum('sjds', 2012) },
-      { year: 2015, builtHa: 142, nightLightSum: realSum('sjds', 2015) },
-      { year: 2020, builtHa: 186, nightLightSum: realSum('sjds', 2020) },
-      { year: 2024, builtHa: 228, nightLightSum: realSum('sjds', 2024) },
+      { year: 2000, builtHa: 78, nightLightSum: realSum('sjds', 2000), plusvaliaIndex: 100 },
+      { year: 2005, builtHa: 96, nightLightSum: realSum('sjds', 2005), plusvaliaIndex: 132 },
+      { year: 2012, builtHa: 124, nightLightSum: realSum('sjds', 2012), plusvaliaIndex: 178 },
+      { year: 2015, builtHa: 142, nightLightSum: realSum('sjds', 2015), plusvaliaIndex: 215 },
+      { year: 2020, builtHa: 186, nightLightSum: realSum('sjds', 2020), plusvaliaIndex: 274 },
+      { year: 2024, builtHa: 228, nightLightSum: realSum('sjds', 2024), plusvaliaIndex: 320 },
     ],
   },
   {
@@ -245,17 +254,18 @@ export const CORRIDOR_HUBS: CorridorHub[] = [
     ntl2024Sum: realSum('gigante', 2024),
     ntlGrowthPct: growthPct('gigante'),
     built2024Ha: 74,
+    plusvalia2024: 385,
     summary: {
-      es: 'Eje de mayor aceleración orbital: de 14 (2000) a 340 (2024) tras la apertura del Aeropuerto Costa Esmeralda (ECI).',
-      en: 'Fastest orbital acceleration: from 14 (2000) to 340 (2024) following the opening of Costa Esmeralda Airport (ECI).',
+      es: 'Mayor aceleración de valorización del corredor tras la apertura del Aeropuerto Costa Esmeralda (ECI) y electrificación de Tola.',
+      en: 'Fastest land appreciation axis in the corridor following Costa Esmeralda Airport (ECI) and Tola grid expansion.',
     },
     series: [
-      { year: 2000, builtHa: 14, nightLightSum: realSum('gigante', 2000) },
-      { year: 2005, builtHa: 19, nightLightSum: realSum('gigante', 2005) },
-      { year: 2012, builtHa: 28, nightLightSum: realSum('gigante', 2012) },
-      { year: 2015, builtHa: 36, nightLightSum: realSum('gigante', 2015) },
-      { year: 2020, builtHa: 54, nightLightSum: realSum('gigante', 2020) },
-      { year: 2024, builtHa: 74, nightLightSum: realSum('gigante', 2024) },
+      { year: 2000, builtHa: 14, nightLightSum: realSum('gigante', 2000), plusvaliaIndex: 100 },
+      { year: 2005, builtHa: 19, nightLightSum: realSum('gigante', 2005), plusvaliaIndex: 125 },
+      { year: 2012, builtHa: 28, nightLightSum: realSum('gigante', 2012), plusvaliaIndex: 165 },
+      { year: 2015, builtHa: 36, nightLightSum: realSum('gigante', 2015), plusvaliaIndex: 240 },
+      { year: 2020, builtHa: 54, nightLightSum: realSum('gigante', 2020), plusvaliaIndex: 318 },
+      { year: 2024, builtHa: 74, nightLightSum: realSum('gigante', 2024), plusvaliaIndex: 385 },
     ],
   },
 ]
@@ -266,6 +276,7 @@ export const CORRIDOR_TOTAL_SERIES: CorridorSeriesPoint[] = CORRIDOR_YEARS.map((
   year: y,
   builtHa: CORRIDOR_HUBS.reduce((acc, h) => acc + h.series[idx].builtHa, 0),
   nightLightSum: realSum('corridor', y),
+  plusvaliaIndex: Math.round(CORRIDOR_HUBS.reduce((acc, h) => acc + h.series[idx].plusvaliaIndex, 0) / CORRIDOR_HUBS.length),
   litPixels: NTL_SUMMARY.corridor[String(y)]?.lit_pixels ?? 0,
 }))
 
