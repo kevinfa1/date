@@ -319,8 +319,8 @@ export default function App() {
       corridorReadyRef.current = true
 
       map.addSource('costanera', { type: 'geojson', data: COSTANERA_MTI_GEOJSON })
-      map.addLayer({ id: 'costanera-glow', type: 'line', source: 'costanera', paint: { 'line-color': '#166534', 'line-width': 8, 'line-opacity': 0.35 } })
-      map.addLayer({ id: 'costanera-line', type: 'line', source: 'costanera', paint: { 'line-color': '#4ade80', 'line-width': 2.5 } })
+      map.addLayer({ id: 'costanera-glow', type: 'line', source: 'costanera', paint: { 'line-color': '#4ea017', 'line-width': 8, 'line-opacity': 0.35 } })
+      map.addLayer({ id: 'costanera-line', type: 'line', source: 'costanera', paint: { 'line-color': '#60b821', 'line-width': 2.8 } })
 
       map.addSource('night-lights', { type: 'geojson', data: getRealNightLightsGeoJson(2024) })
       map.addLayer({
@@ -443,27 +443,30 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      <header className="topbar">
-        <div className="topbar-inner">
-          <div className="brand-wrap">
-            <div className="brand-mark">CFA</div>
-            <div>
-              <div className="brand-title">Constructora Flores Aburto</div>
-              <div className="brand-sub">{t.brandSub}</div>
-            </div>
-          </div>
+      <nav className="navbar">
+        <div className="navbar-inner">
+          <a className="nav-brand" href={`https://constructorafloresaburto.com/?lang=${lang}`}>
+            <img src="./logo_flores_aburto.png" alt="Constructora Flores Aburto" />
+            <span className="nav-brand-title">
+              Constructora Flores Aburto
+              <span className="nav-brand-sub">Civil &amp; Industrial Engineering</span>
+            </span>
+          </a>
 
-          <div className="topbar-right">
-            <a className="back-link" href={`https://constructorafloresaburto.com/?lang=${lang}`} rel="noopener">
-              {t.backHome}
-            </a>
-            <div className="segmented" role="group" aria-label="Language">
-              <button type="button" className={lang === 'es' ? 'on' : ''} onClick={() => setLang('es')}>ES</button>
-              <button type="button" className={lang === 'en' ? 'on' : ''} onClick={() => setLang('en')}>EN</button>
-            </div>
+          <ul className="nav-links">
+            <li><a href="https://constructorafloresaburto.com/#about">{lang === 'es' ? 'Quiénes Somos' : 'About Us'}</a></li>
+            <li><a href="https://constructorafloresaburto.com/#services">{lang === 'es' ? 'Servicios' : 'Engineering'}</a></li>
+            <li><a href="https://constructorafloresaburto.com/#gallery">{lang === 'es' ? 'Obras' : 'Projects'}</a></li>
+            <li><a href="#observatorio" className="nav-active">{lang === 'es' ? 'Observatorio' : 'Observatory'}</a></li>
+            <li><a href="https://constructorafloresaburto.com/#contact">{lang === 'es' ? 'Contacto' : 'Contact'}</a></li>
+          </ul>
+
+          <div className="segmented" role="group" aria-label="Language">
+            <button type="button" className={lang === 'es' ? 'on' : ''} onClick={() => setLang('es')}>ES</button>
+            <button type="button" className={lang === 'en' ? 'on' : ''} onClick={() => setLang('en')}>EN</button>
           </div>
         </div>
-      </header>
+      </nav>
 
       <main>
         <div className="cfa-stack">
@@ -553,7 +556,7 @@ export default function App() {
 
                 <Button
                   variant="primary"
-                  className="btn-brass"
+                  className="btn-cfa"
                   onClick={() => corridorSectionRef.current?.scrollIntoView({ behavior: 'smooth' })}
                 >
                   {t.globeJump}
@@ -686,8 +689,8 @@ export default function App() {
                     type="monotone"
                     dataKey="plusvaliaIndex"
                     name={lang === 'es' ? 'Índice de Plusvalía Costera (2000=100)' : 'Coastal Appreciation Index (2000=100)'}
-                    stroke="#1f4e68"
-                    fill="rgba(31, 78, 104, 0.20)"
+                    stroke="#0284c7"
+                    fill="rgba(2, 132, 199, 0.16)"
                     strokeWidth={2.5}
                   />
                   <Line
@@ -695,7 +698,7 @@ export default function App() {
                     type="monotone"
                     dataKey="nightLightSum"
                     name={lang === 'es' ? 'Radiancia nocturna medida (suma)' : 'Measured nighttime radiance (sum)'}
-                    stroke="#166534"
+                    stroke="#60b821"
                     strokeWidth={2.5}
                     dot={{ r: 4 }}
                   />
@@ -709,10 +712,46 @@ export default function App() {
         </div>
       </main>
 
-      <footer className="site-footer">
-        <div className="site-footer-inner">
-          <span><strong>{t.footerLeft}</strong></span>
-          <span>{t.footerRight}</span>
+      <footer className="footer">
+        <div className="footer-container">
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+              <img
+                src="./logo_flores_aburto.png"
+                alt="Constructora Flores Aburto"
+                style={{ height: 40, width: 'auto', objectFit: 'contain', filter: 'brightness(0) invert(1)' }}
+              />
+              <span style={{ fontSize: 17, fontWeight: 800, color: '#ffffff' }}>Constructora Flores Aburto</span>
+            </div>
+            <p>
+              {lang === 'es'
+                ? 'Firma líder en ingeniería Civil e Industrial en San Juan del Sur, Rivas, Nicaragua. Certeza física, contratos a precio cerrado y soluciones de eco-ingeniería.'
+                : 'Premier Civil & Industrial Engineering firm in San Juan del Sur, Rivas, Nicaragua. Physical certainty, fixed-price turnkey contracts, and eco-engineering.'}
+            </p>
+            <p style={{ marginTop: 10, color: '#64748b' }}>RUC: 5610706991000K | San Juan del Sur, Nicaragua</p>
+          </div>
+          <div>
+            <h4>{lang === 'es' ? 'Contacto Directo' : 'Direct Contact'}</h4>
+            <ul>
+              <li><a href="https://wa.me/50587253327" target="_blank" rel="noreferrer">WhatsApp: +505 8725-3327</a></li>
+              <li><a href="mailto:cfanic505@gmail.com">cfanic505@gmail.com</a></li>
+              <li><a href="https://instagram.com/cfanic505" target="_blank" rel="noreferrer">Instagram: @cfanic505</a></li>
+              <li>San Juan del Sur, Rivas, Nicaragua</li>
+            </ul>
+          </div>
+          <div>
+            <h4>{lang === 'es' ? 'Navegación' : 'Navigation'}</h4>
+            <ul>
+              <li><a href="https://constructorafloresaburto.com/#about">{lang === 'es' ? 'Quiénes Somos' : 'About Us'}</a></li>
+              <li><a href="https://constructorafloresaburto.com/#services">{lang === 'es' ? 'Servicios de Ingeniería' : 'Engineering Services'}</a></li>
+              <li><a href="https://constructorafloresaburto.com/#gallery">{lang === 'es' ? 'Galería de Obras' : 'Project Gallery'}</a></li>
+              <li><a href="https://constructorafloresaburto.com/#dossier">{lang === 'es' ? 'Dossier Institucional (PDF)' : 'Institutional Dossier (PDF)'}</a></li>
+              <li><a href="https://constructorafloresaburto.com/portal/">{lang === 'es' ? 'Portal de Clientes' : 'Client Portal'}</a></li>
+            </ul>
+          </div>
+        </div>
+        <div className="footer-bottom">
+          © 2026 Constructora Flores Aburto (CFA). {lang === 'es' ? 'Todos los derechos reservados.' : 'All rights reserved.'}
         </div>
       </footer>
     </div>
