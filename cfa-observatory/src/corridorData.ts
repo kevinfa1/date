@@ -7,12 +7,24 @@ export type CountryMacro = {
   name: Record<Lang, string>
   lat: number
   lon: number
+  referenceYear: number
   gdpUsdB: number
   gdpPerCapitaUsd: number
   laborDailyUsd: number
-  constructionIndex: number
   turnkeySqmUsd: number
+  constructionIndex: number
   note: Record<Lang, string>
+}
+
+/**
+ * Índice determinístico de Eficiencia Constructiva (0–100):
+ * 50% competitividad de mano de obra diaria + 50% eficiencia de costo llave en mano/m²
+ * normalizados frente al mejor costo regional (Nicaragua = $22/día, $1,150/m²).
+ */
+export function computeEfficiencyIndex(laborDailyUsd: number, turnkeySqmUsd: number): number {
+  const laborScore = Math.min(1, 22 / laborDailyUsd)
+  const sqmScore = Math.min(1, 1150 / turnkeySqmUsd)
+  return Math.round((0.5 * laborScore + 0.5 * sqmScore) * 100)
 }
 
 export const REGIONAL_COUNTRIES: CountryMacro[] = [
@@ -21,11 +33,12 @@ export const REGIONAL_COUNTRIES: CountryMacro[] = [
     name: { es: 'Nicaragua', en: 'Nicaragua' },
     lat: 12.13,
     lon: -85.8,
+    referenceYear: 2024,
     gdpUsdB: 18.8,
     gdpPerCapitaUsd: 2750,
     laborDailyUsd: 22,
-    constructionIndex: 92,
     turnkeySqmUsd: 1150,
+    constructionIndex: computeEfficiencyIndex(22, 1150),
     note: {
       es: 'Mayor eficiencia regional en costo de mano de obra calificada y metro cuadrado llave en mano frente a mercados vecinos.',
       en: 'Highest regional efficiency in skilled labor cost and turnkey cost per m² compared to neighboring coastal markets.',
@@ -36,11 +49,12 @@ export const REGIONAL_COUNTRIES: CountryMacro[] = [
     name: { es: 'Costa Rica', en: 'Costa Rica' },
     lat: 9.93,
     lon: -84.09,
+    referenceYear: 2024,
     gdpUsdB: 95.3,
     gdpPerCapitaUsd: 18100,
     laborDailyUsd: 54,
-    constructionIndex: 48,
     turnkeySqmUsd: 2250,
+    constructionIndex: computeEfficiencyIndex(54, 2250),
     note: {
       es: 'Mercado maduro con cargas sociales y mano de obra constructiva ~2,4x más costosa que el Pacífico Sur nicaragüense.',
       en: 'Mature market with social overhead and construction labor ~2.4x higher than Nicaragua’s South Pacific.',
@@ -51,11 +65,12 @@ export const REGIONAL_COUNTRIES: CountryMacro[] = [
     name: { es: 'Panamá', en: 'Panama' },
     lat: 8.98,
     lon: -79.52,
+    referenceYear: 2024,
     gdpUsdB: 87.3,
     gdpPerCapitaUsd: 19200,
     laborDailyUsd: 48,
-    constructionIndex: 55,
     turnkeySqmUsd: 1980,
+    constructionIndex: computeEfficiencyIndex(48, 1980),
     note: {
       es: 'Hub financiero con costos salariales y de ejecución vertical elevados en zonas costeras.',
       en: 'Financial hub with elevated wage structures and vertical execution costs in coastal zones.',
@@ -66,11 +81,12 @@ export const REGIONAL_COUNTRIES: CountryMacro[] = [
     name: { es: 'México (Pacífico)', en: 'Mexico (Pacific)' },
     lat: 20.65,
     lon: -105.22,
+    referenceYear: 2024,
     gdpUsdB: 1811.0,
     gdpPerCapitaUsd: 13900,
     laborDailyUsd: 36,
-    constructionIndex: 68,
     turnkeySqmUsd: 1620,
+    constructionIndex: computeEfficiencyIndex(36, 1620),
     note: {
       es: 'Escala industrial amplia, pero con mayor costo de suelo e insumos en destinos costeros consolidados.',
       en: 'Broad industrial scale, though with higher land and input costs in consolidated coastal destinations.',
@@ -81,11 +97,12 @@ export const REGIONAL_COUNTRIES: CountryMacro[] = [
     name: { es: 'Colombia (Caribe)', en: 'Colombia (Caribbean)' },
     lat: 10.39,
     lon: -75.48,
+    referenceYear: 2024,
     gdpUsdB: 417.0,
     gdpPerCapitaUsd: 7900,
     laborDailyUsd: 29,
-    constructionIndex: 76,
     turnkeySqmUsd: 1380,
+    constructionIndex: computeEfficiencyIndex(29, 1380),
     note: {
       es: 'Mano de obra competitiva, aunque con mayor distancia logística hacia el mercado norteamericano.',
       en: 'Competitive labor, though farther logistically from North American buyer corridors.',
@@ -301,9 +318,9 @@ export function buildContinuousCorridor(): {
 
       for (let c = 0; c < count; c++) {
         const k = s * 1000 + step * 37 + c + 1
-        const spreadLat = (pseudoRand(k * 1.3) - 0.5) * (isSjds ? 0.024 : 0.015)
-        // Sesgo hacia tierra firme (este) para mantener el desarrollo sobre la franja costera terrestre
-        const spreadLon = (pseudoRand(k * 2.1) - 0.3) * (isSjds ? 0.026 : 0.016)
+        const spreadLat = (pseudoRand(k * 1.3) - 0.5) * (isSjds ? 0.022 : 0.014)
+        // Restricción estricta hacia tierra firme (este) para evitar celdas sobre el Océano Pacífico
+        const spreadLon = pseudoRand(k * 2.1) * (isSjds ? 0.024 : 0.015) + 0.0012
         const lat = baseLat + spreadLat
         const lon = baseLon + spreadLon
         const distFromSpine = Math.hypot(spreadLat, spreadLon)

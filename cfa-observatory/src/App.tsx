@@ -7,6 +7,7 @@ import {
   ComposedChart,
   Legend,
   Line,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -25,7 +26,7 @@ import {
   type Lang,
   type ZoneId,
 } from './corridorData'
-import { Button, Card, Kpi, Switch } from './ui'
+import { Button, Card, Disclosure, Kpi, Switch } from './ui'
 
 const GIBS = 'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best'
 const ESRI_IMAGERY = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
@@ -101,7 +102,10 @@ const COPY = {
     indexLabel: 'Índice Eficiencia Constructiva',
     sqmLabel: 'Costo ref. llave en mano',
     rankingTitle: 'Competitividad constructiva regional (0–100)',
-    macroSource: 'Ref. macro: Banco Mundial / FMI · Costos: benchmark sectorial regional',
+    macroSource: 'Ref. macro 2024: Banco Mundial / FMI · Índice = 50% costo laboral + 50% costo/m²',
+    scenarioTag: 'Escenario exploratorio',
+    methodTitle: 'Transparencia metodológica y estado de los datos',
+    methodBody: '1) Índice de Eficiencia Constructiva (0–100): promedio ponderado (50% costo diario de mano de obra + 50% costo/m² llave en mano) normalizado respecto al mejor costo regional (Nicaragua = 100/100). 2) Serie 1995–2025 vs. 2030–2035: los años 2030–2035 son un escenario exploratorio no determinista. 3) Datos espaciales: la malla 3D y curvas actuales son referenciales del prototipo y se reemplazan con rasters reales de GHSL (100 m) y VIIRS/DMSP armonizado mediante scripts/extract_corridor_real.py.',
     corridorEyebrow: 'VISOR 3D CONTINUO · OSTIONAL → SAN JUAN DEL SUR → PLAYA GIGANTE / TOLA',
     corridorTitle: 'Desarrollo costero continuo y luces nocturnas (1995–2035)',
     corridorSub: 'Mueve la línea de tiempo para observar cómo se encienden las luces nocturnas y se consolida la franja de 45 km.',
@@ -140,7 +144,10 @@ const COPY = {
     indexLabel: 'Construction Efficiency Index',
     sqmLabel: 'Turnkey ref. cost',
     rankingTitle: 'Regional construction competitiveness (0–100)',
-    macroSource: 'Macro ref.: World Bank / IMF · Costs: regional construction benchmark',
+    macroSource: '2024 macro ref.: World Bank / IMF · Index = 50% labor cost + 50% cost/m²',
+    scenarioTag: 'Exploratory scenario',
+    methodTitle: 'Methodological transparency & data status',
+    methodBody: '1) Construction Efficiency Index (0–100): weighted average (50% daily labor cost + 50% turnkey cost/m²) normalized against the regional benchmark (Nicaragua = 100/100). 2) 1995–2025 vs. 2030–2035: 2030–2035 represents an exploratory scenario, not a deterministic forecast. 3) Spatial layer: current 3D cells and curves are structured prototype baselines ready to be swapped for real GHSL (100 m) and Harmonized VIIRS/DMSP rasters via scripts/extract_corridor_real.py.',
     corridorEyebrow: 'CONTINUOUS 3D VIEWER · OSTIONAL → SAN JUAN DEL SUR → PLAYA GIGANTE / TOLA',
     corridorTitle: 'Continuous coastal growth & nighttime lights (1995–2035)',
     corridorSub: 'Scrub the timeline to watch nighttime lights ignite and connect along the 45 km coastline.',
@@ -583,6 +590,7 @@ export default function App() {
                 <div className="cfa-map-overlay-badge">
                   <strong>{activeHub ? activeHub.name : t.allCorridor} · {year}</strong>
                   <span className="cfa-sensor-pill">{sensorForYear(year, lang)}</span>
+                  {year >= 2030 && <span className="cfa-sensor-pill">{t.scenarioTag}</span>}
                   <span className="num">NTL {activePoint.nightLightIdx}/100 · {activePoint.builtHa} ha</span>
                 </div>
                 <div className="cfa-map-legend">
@@ -667,6 +675,13 @@ export default function App() {
                   <YAxis yAxisId="ntl" orientation="right" domain={[0, 100]} tick={{ fontSize: 12 }} />
                   <Tooltip />
                   <Legend />
+                  <ReferenceLine
+                    x={2025}
+                    yAxisId="ha"
+                    stroke="#64748b"
+                    strokeDasharray="4 4"
+                    label={{ value: lang === 'es' ? 'Inicio escenario →' : 'Scenario →', position: 'top', fontSize: 11, fill: '#64748b' }}
+                  />
                   <Area
                     yAxisId="ha"
                     type="monotone"
@@ -688,6 +703,9 @@ export default function App() {
                 </ComposedChart>
               </ResponsiveContainer>
             </div>
+            <Disclosure title={t.methodTitle} className="spaced">
+              <p className="small muted" style={{ margin: 0 }}>{t.methodBody}</p>
+            </Disclosure>
           </Card>
         </div>
       </main>
