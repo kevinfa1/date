@@ -310,8 +310,8 @@ export default function App() {
       corridorReadyRef.current = true
 
       map.addSource('costanera', { type: 'geojson', data: COSTANERA_MTI_GEOJSON })
-      map.addLayer({ id: 'costanera-glow', type: 'line', source: 'costanera', paint: { 'line-color': '#a87e41', 'line-width': 8, 'line-opacity': 0.35 } })
-      map.addLayer({ id: 'costanera-line', type: 'line', source: 'costanera', paint: { 'line-color': '#e2bd82', 'line-width': 2.5 } })
+      map.addLayer({ id: 'costanera-glow', type: 'line', source: 'costanera', paint: { 'line-color': '#166534', 'line-width': 8, 'line-opacity': 0.35 } })
+      map.addLayer({ id: 'costanera-line', type: 'line', source: 'costanera', paint: { 'line-color': '#4ade80', 'line-width': 2.5 } })
 
       map.addSource('night-lights', { type: 'geojson', data: lights })
       map.addLayer({
@@ -356,7 +356,7 @@ export default function App() {
         source: 'corridor-cells',
         filter: ['<=', ['get', 'year'], 2025],
         paint: {
-          'fill-extrusion-color': ['case', ['>', ['get', 'year'], 2025], '#e2bd82', '#5c8aa8'],
+          'fill-extrusion-color': ['case', ['>', ['get', 'year'], 2025], '#22c55e', '#5c8aa8'],
           'fill-extrusion-height': ['*', ['get', 'height'], 8],
           'fill-extrusion-base': 0,
           'fill-extrusion-opacity': 0.78,
@@ -411,8 +411,8 @@ export default function App() {
       map.setFilter('urban-3d', ['<=', ['get', 'year'], year])
       map.setPaintProperty('urban-3d', 'fill-extrusion-color', [
         'case',
-        ['==', ['get', 'year'], year], '#fffbeb',
-        ['>', ['get', 'year'], 2025], '#d4aa6a',
+        ['==', ['get', 'year'], year], '#dcfce7',
+        ['>', ['get', 'year'], 2025], '#22c55e',
         '#5c8aa8',
       ])
     }
@@ -465,7 +465,7 @@ export default function App() {
           <Card as="section" className="cfa-map-card">
             <div className="row">
               <div>
-                <span className="cfa-eyebrow" style={{ color: 'var(--brass)', marginBottom: 4 }}>{t.globeEyebrow}</span>
+                <span className="cfa-eyebrow" style={{ color: 'var(--cfa-green)', marginBottom: 4 }}>{t.globeEyebrow}</span>
                 <h1>{t.globeTitle}</h1>
                 <p className="muted small" style={{ margin: '6px 0 0', maxWidth: '72ch' }}>{t.globeLead}</p>
               </div>
@@ -535,7 +535,7 @@ export default function App() {
                           className="cfa-rank-fill"
                           style={{
                             width: `${c.constructionIndex}%`,
-                            background: c.id === 'nic' ? 'var(--emerald)' : 'var(--brass)',
+                            background: c.id === 'nic' ? 'var(--cfa-green)' : '#94a3b8',
                           }}
                         />
                       </div>
@@ -561,7 +561,7 @@ export default function App() {
           <Card as="section" className="cfa-map-card">
             <div className="row">
               <div>
-                <span className="cfa-eyebrow" style={{ color: 'var(--brass)', marginBottom: 4 }}>{t.corridorEyebrow}</span>
+                <span className="cfa-eyebrow" style={{ color: 'var(--cfa-green)', marginBottom: 4 }}>{t.corridorEyebrow}</span>
                 <h2>{t.corridorTitle}</h2>
                 <p className="muted small" style={{ margin: '4px 0 0' }}>{t.corridorSub}</p>
               </div>
@@ -588,8 +588,8 @@ export default function App() {
                 <div className="cfa-map-legend">
                   <span className="cfa-legend-item"><i className="cfa-swatch" style={{ background: '#fde047' }} /> {t.lLights}</span>
                   <span className="cfa-legend-item"><i className="cfa-swatch" style={{ background: '#5c8aa8' }} /> ≤ 2025</span>
-                  <span className="cfa-legend-item"><i className="cfa-swatch" style={{ background: '#d4aa6a' }} /> 2030–2035</span>
-                  <span className="cfa-legend-item"><i className="cfa-swatch line" style={{ background: '#e2bd82' }} /> {t.lCostanera}</span>
+                  <span className="cfa-legend-item"><i className="cfa-swatch" style={{ background: '#22c55e' }} /> 2030–2035</span>
+                  <span className="cfa-legend-item"><i className="cfa-swatch line" style={{ background: '#4ade80' }} /> {t.lCostanera}</span>
                 </div>
               </div>
 
@@ -641,7 +641,7 @@ export default function App() {
           </div>
 
           <section className="cfa-kpi-grid">
-            <Kpi label={t.kNtl} value={`${activePoint.nightLightIdx}/100`} num color="var(--brass)">
+            <Kpi label={t.kNtl} value={`${activePoint.nightLightIdx}/100`} num color="var(--cfa-green)">
               <span className="muted small">{year} · {sensorForYear(year, lang)}</span>
             </Kpi>
             <Kpi label={t.kBuilt} value={`${activeSeries[5].builtHa} → ${activeSeries[7].builtHa} ha`} num>
@@ -681,7 +681,7 @@ export default function App() {
                     type="monotone"
                     dataKey="nightLightIdx"
                     name={lang === 'es' ? 'Índice luces nocturnas (0–100)' : 'Nighttime Light Index (0–100)'}
-                    stroke="#a87e41"
+                    stroke="#166534"
                     strokeWidth={2.5}
                     dot={{ r: 4 }}
                   />
