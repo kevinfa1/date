@@ -1,0 +1,57 @@
+# 0. DIRECTORY INDEX & URL AMIGABLE PARA EL PORTAL
+DirectoryIndex index.html index.php
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  # Enrutar /portal y /portal/ a portal/index.html limpiamente
+  RewriteRule ^portal/?$ portal/index.html [L]
+  # Enrutar /observatorio y /observatorio/ a observatorio/index.html limpiamente
+  RewriteRule ^observatorio/?$ observatorio/index.html [L]
+</IfModule>
+
+# ==============================================================================
+# Hostinger .htaccess - Constructora Flores Aburto (CFA)
+# Dominio: constructorafloresaburto.com
+# ==============================================================================
+
+# 1. MIME TYPES (GARANTIZA QUE EL SERVIDOR ENVIE CORRECTAMENTE WEBP, SVG Y JPG)
+<IfModule mod_mime.c>
+  AddType image/webp .webp
+  AddType image/svg+xml .svg .svgz
+  AddType image/jpeg .jpg .jpeg
+  AddType image/png .png
+  AddType text/html .html
+  AddType application/pdf .pdf
+</IfModule>
+
+# 2. SEGURIDAD: DESACTIVAR LISTADO DE DIRECTORIOS (SEGURO)
+<IfModule mod_autoindex.c>
+  Options -Indexes
+</IfModule>
+
+# 3. CABECERAS HTTP Y PERMISOS DE IFRAME PARA EL PORTAL
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+  # Permitir incrustar iframes del portal dentro del mismo dominio
+  Header set X-Frame-Options "SAMEORIGIN"
+</IfModule>
+
+# 4. COMPRESIÓN GZIP / DEFLATE (HOSTINGER LITESPEED / APACHE)
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css
+  AddOutputFilterByType DEFLATE application/javascript application/x-javascript
+  AddOutputFilterByType DEFLATE application/json application/xml image/svg+xml
+</IfModule>
+
+# 5. CACHÉ DEL NAVEGADOR
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/webp "access plus 1 month"
+  ExpiresByType image/jpeg "access plus 1 month"
+  ExpiresByType image/png "access plus 1 month"
+  ExpiresByType image/svg+xml "access plus 1 month"
+  ExpiresByType text/css "access plus 1 week"
+  ExpiresByType application/javascript "access plus 1 week"
+  ExpiresByType application/pdf "access plus 1 month"
+</IfModule>
