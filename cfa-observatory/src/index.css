@@ -239,6 +239,29 @@ th.num, td.num { text-align: right; }
   gap: 8px;
   margin-top: 20px;
 }
+.cfa-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin-top: 20px;
+}
+.btn-brass { background: var(--brass); color: #fff; }
+.cfa-globe-card { padding: 14px; }
+.cfa-globe-canvas { width: 100%; height: 520px; border-radius: var(--r-m); overflow: hidden; background: #060c18; }
+.cfa-globe-pin {
+  background: rgba(15, 20, 25, 0.9);
+  color: #fff;
+  border: 2px solid #d4aa6a;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-family: var(--sans);
+  cursor: pointer;
+  box-shadow: 0 0 0 6px rgba(168, 126, 65, 0.28);
+}
+.cfa-globe-pin:hover { background: var(--brass); }
 .cfa-chip {
   font-size: 0.76rem;
   font-weight: 600;
