@@ -15,10 +15,12 @@ import {
 } from 'recharts'
 import {
   buildContinuousCorridor,
+  CORRIDOR_GROWTH_PCT,
   CORRIDOR_HUBS,
   CORRIDOR_TOTAL_SERIES,
   CORRIDOR_YEARS,
   COSTANERA_MTI_GEOJSON,
+  getRealNightLightsGeoJson,
   REGIONAL_COUNTRIES,
   sensorForYear,
   type CorridorYear,
@@ -107,28 +109,28 @@ const COPY = {
     methodTitle: 'Transparencia metodológica y estado de los datos',
     methodBody: '1) Índice de Eficiencia Constructiva (0–100): promedio ponderado (50% costo diario de mano de obra + 50% costo/m² llave en mano) normalizado respecto al mejor costo regional (Nicaragua = 100/100). 2) Serie 1995–2025 vs. 2030–2035: los años 2030–2035 son un escenario exploratorio no determinista. 3) Datos espaciales: la malla 3D y curvas actuales son referenciales del prototipo y se reemplazan con rasters reales de GHSL (100 m) y VIIRS/DMSP armonizado mediante scripts/extract_corridor_real.py.',
     corridorEyebrow: 'VISOR 3D CONTINUO · OSTIONAL → SAN JUAN DEL SUR → PLAYA GIGANTE / TOLA',
-    corridorTitle: 'Desarrollo costero continuo y luces nocturnas (1995–2035)',
-    corridorSub: 'Mueve la línea de tiempo para observar cómo se encienden las luces nocturnas y se consolida la franja de 45 km.',
+    corridorTitle: 'Luces nocturnas satelitales reales (500 m) y corredor costero (2000–2024)',
+    corridorSub: 'Píxeles reales extraídos de GeoTIFF anuales (VNL V2.1 / NASA VIIRS). Mueve el timeline para ver la expansión lumínica medida.',
     allCorridor: 'Tramo completo (45 km)',
-    timeline: 'Línea de tiempo (1995–2035)',
+    timeline: 'Serie medida (2000–2024)',
     play: 'Reproducir',
     pause: 'Pausar',
     layers: 'Capas activas',
-    lLights: 'Luces nocturnas dinámicas',
-    lUrban: 'Crecimiento 3D continuo',
+    lLights: 'Luces reales 500 m (VNL V2.1)',
+    lUrban: 'Huella 3D referencial',
     lCostanera: 'Vector Costanera (MTI)',
     connTitle: 'Logística y conectividad',
     connCostanera: 'Carretera Costanera (MTI)',
     connEci: 'Aeropuerto Costa Esmeralda (ECI)',
     connBorder: 'Frontera Peñas Blancas (CR)',
-    kNtl: 'Índice lumínico nocturno',
-    kBuilt: 'Huella construida 2025 → 2035',
+    kNtl: 'Radiancia medida (suma)',
+    kBuilt: 'Huella construida 2024',
     kAir: 'Acceso aéreo (ECI)',
-    kGrowth: 'Expansión lumínica (1995–2025)',
-    chartTitle: 'Evolución lumínica y expansión física',
-    chartSub: 'Crecimiento continuo de actividad nocturna (0–100) y superficie construida (ha) · 1995–2035',
+    kGrowth: 'Crecimiento lumínico (2000–2024)',
+    chartTitle: 'Radiancia nocturna real y expansión física',
+    chartSub: 'Suma de radiancia orbital medida en píxeles de 500 m (VNL V2.1) y huella construida (ha) · 2000–2024',
     footerLeft: 'Constructora Flores Aburto (CFA) · San Juan del Sur, Rivas, Nicaragua',
-    footerRight: 'Globo macroeconómico regional + corredor costero continuo Ostional – San Juan del Sur – Tola',
+    footerRight: 'Datos orbitales reales: VNL V2.1 / NASA VIIRS (500 m, 2000–2024) · Eje Ostional – SJDS – Tola',
   },
   en: {
     brandSub: 'Civil & Industrial Engineering · Rivas South Pacific',
@@ -145,32 +147,32 @@ const COPY = {
     sqmLabel: 'Turnkey ref. cost',
     rankingTitle: 'Regional construction competitiveness (0–100)',
     macroSource: '2024 macro ref.: World Bank / IMF · Index = 50% labor cost + 50% cost/m²',
-    scenarioTag: 'Exploratory scenario',
-    methodTitle: 'Methodological transparency & data status',
-    methodBody: '1) Construction Efficiency Index (0–100): weighted average (50% daily labor cost + 50% turnkey cost/m²) normalized against the regional benchmark (Nicaragua = 100/100). 2) 1995–2025 vs. 2030–2035: 2030–2035 represents an exploratory scenario, not a deterministic forecast. 3) Spatial layer: current 3D cells and curves are structured prototype baselines ready to be swapped for real GHSL (100 m) and Harmonized VIIRS/DMSP rasters via scripts/extract_corridor_real.py.',
+    scenarioTag: 'Measured',
+    methodTitle: 'Methodological transparency & satellite data provenance',
+    methodBody: '1) Nighttime lights (100% real): extracted directly from annual 500 m GeoTIFFs (Zenodo VNL V2.1 / NASA VIIRS, 2000–2024) clipped to Rivas South Pacific (-86.09, 11.07 to -85.71, 11.43), applying the official 2024 scale factor (10x). Lit pixels grew from 110 (2000) to 620 (2024). 2) Construction Efficiency Index: 50% daily labor cost + 50% turnkey cost/m² normalized against the regional benchmark.',
     corridorEyebrow: 'CONTINUOUS 3D VIEWER · OSTIONAL → SAN JUAN DEL SUR → PLAYA GIGANTE / TOLA',
-    corridorTitle: 'Continuous coastal growth & nighttime lights (1995–2035)',
-    corridorSub: 'Scrub the timeline to watch nighttime lights ignite and connect along the 45 km coastline.',
+    corridorTitle: 'Real satellite nighttime lights (500 m) & coastal corridor (2000–2024)',
+    corridorSub: 'Real pixels extracted from annual GeoTIFFs (VNL V2.1 / NASA VIIRS). Scrub the timeline to inspect measured light expansion.',
     allCorridor: 'Full 45 km stretch',
-    timeline: 'Timeline (1995–2035)',
+    timeline: 'Measured series (2000–2024)',
     play: 'Play',
     pause: 'Pause',
     layers: 'Active layers',
-    lLights: 'Dynamic nighttime lights',
-    lUrban: 'Continuous 3D growth',
+    lLights: 'Real 500 m lights (VNL V2.1)',
+    lUrban: 'Reference 3D footprint',
     lCostanera: 'Costanera Vector (MTI)',
     connTitle: 'Logistics & connectivity',
     connCostanera: 'Costanera Highway (MTI)',
     connEci: 'Costa Esmeralda Airport (ECI)',
     connBorder: 'Peñas Blancas Border (CR)',
-    kNtl: 'Nighttime Light Index',
-    kBuilt: 'Built-up footprint 2025 → 2035',
+    kNtl: 'Measured radiance (sum)',
+    kBuilt: 'Built-up footprint 2024',
     kAir: 'Air access (ECI)',
-    kGrowth: 'Light growth (1995–2025)',
-    chartTitle: 'Night-light & physical expansion',
-    chartSub: 'Continuous nighttime activity (0–100) and built-up area (ha) · 1995–2035',
+    kGrowth: 'Light growth (2000–2024)',
+    chartTitle: 'Real nighttime radiance & physical expansion',
+    chartSub: 'Measured orbital radiance sum across 500 m pixels (VNL V2.1) & built-up area (ha) · 2000–2024',
     footerLeft: 'Constructora Flores Aburto (CFA) · San Juan del Sur, Rivas, Nicaragua',
-    footerRight: 'Regional macro globe + continuous coastal corridor Ostional – San Juan del Sur – Tola',
+    footerRight: 'Real orbital data: VNL V2.1 / NASA VIIRS (500 m, 2000–2024) · Ostional – SJDS – Tola',
   },
 } as const
 
@@ -185,7 +187,7 @@ export default function App() {
   const [nightMode, setNightMode] = useState(true)
 
   const [zoneId, setZoneId] = useState<ZoneId>('corridor')
-  const [yearIdx, setYearIdx] = useState<number>(CORRIDOR_YEARS.indexOf(2025))
+  const [yearIdx, setYearIdx] = useState<number>(CORRIDOR_YEARS.indexOf(2024))
   const [playing, setPlaying] = useState(false)
   const [showLights, setShowLights] = useState(true)
   const [showUrban, setShowUrban] = useState(true)
@@ -205,7 +207,7 @@ export default function App() {
   const t = COPY[lang]
   const country = REGIONAL_COUNTRIES.find((c) => c.id === countryId) ?? REGIONAL_COUNTRIES[0]
   const year: CorridorYear = CORRIDOR_YEARS[yearIdx]
-  const { cells, lights } = useMemo(() => buildContinuousCorridor(), [])
+  const { cells } = useMemo(() => buildContinuousCorridor(), [])
   const activeHub = CORRIDOR_HUBS.find((h) => h.id === zoneId) ?? null
   const activeSeries = activeHub ? activeHub.series : CORRIDOR_TOTAL_SERIES
   const activePoint = activeSeries.find((s) => s.year === year) ?? activeSeries[5]
@@ -320,25 +322,24 @@ export default function App() {
       map.addLayer({ id: 'costanera-glow', type: 'line', source: 'costanera', paint: { 'line-color': '#166534', 'line-width': 8, 'line-opacity': 0.35 } })
       map.addLayer({ id: 'costanera-line', type: 'line', source: 'costanera', paint: { 'line-color': '#4ade80', 'line-width': 2.5 } })
 
-      map.addSource('night-lights', { type: 'geojson', data: lights })
+      map.addSource('night-lights', { type: 'geojson', data: getRealNightLightsGeoJson(2024) })
       map.addLayer({
         id: 'night-lights-heat',
         type: 'heatmap',
         source: 'night-lights',
-        filter: ['<=', ['get', 'year'], 2025],
         paint: {
           'heatmap-weight': ['get', 'weight'],
           'heatmap-intensity': 1.25,
-          'heatmap-radius': 26,
-          'heatmap-opacity': 0.85,
+          'heatmap-radius': 28,
+          'heatmap-opacity': 0.88,
           'heatmap-color': [
             'interpolate',
             ['linear'],
             ['heatmap-density'],
             0, 'rgba(0,0,0,0)',
             0.2, 'rgba(180, 83, 9, 0.35)',
-            0.45, 'rgba(245, 158, 11, 0.65)',
-            0.75, 'rgba(253, 224, 71, 0.88)',
+            0.45, 'rgba(245, 158, 11, 0.68)',
+            0.75, 'rgba(253, 224, 71, 0.90)',
             1, 'rgba(255, 251, 235, 1)',
           ],
         },
@@ -347,12 +348,11 @@ export default function App() {
         id: 'night-lights-core',
         type: 'circle',
         source: 'night-lights',
-        filter: ['<=', ['get', 'year'], 2025],
         paint: {
-          'circle-radius': ['interpolate', ['linear'], ['zoom'], 9, 2.2, 13, 4.5],
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 9, 2.5, 13, 5.2],
           'circle-color': '#fef08a',
-          'circle-opacity': 0.8,
-          'circle-blur': 0.5,
+          'circle-opacity': 0.85,
+          'circle-blur': 0.45,
         },
       })
 
@@ -361,12 +361,12 @@ export default function App() {
         id: 'urban-3d',
         type: 'fill-extrusion',
         source: 'corridor-cells',
-        filter: ['<=', ['get', 'year'], 2025],
+        filter: ['<=', ['get', 'year'], 2024],
         paint: {
-          'fill-extrusion-color': ['case', ['>', ['get', 'year'], 2025], '#22c55e', '#5c8aa8'],
+          'fill-extrusion-color': '#5c8aa8',
           'fill-extrusion-height': ['*', ['get', 'height'], 8],
           'fill-extrusion-base': 0,
-          'fill-extrusion-opacity': 0.78,
+          'fill-extrusion-opacity': 0.72,
         },
       })
 
@@ -392,7 +392,7 @@ export default function App() {
       map.remove()
       corridorMapRef.current = null
     }
-  }, [cells, lights])
+  }, [cells])
 
   useEffect(() => {
     hubBtnsRef.current.forEach((btn, id) => btn.classList.toggle('active', id === zoneId))
@@ -402,15 +402,15 @@ export default function App() {
     const map = corridorMapRef.current
     if (!map || !corridorReadyRef.current) return
     const vis = (on: boolean) => (on ? 'visible' : 'none')
-    const progress = (year - 1995) / (2035 - 1995)
+
+    const lightSource = map.getSource('night-lights') as maplibregl.GeoJSONSource | undefined
+    if (lightSource) {
+      lightSource.setData(getRealNightLightsGeoJson(year))
+    }
 
     if (map.getLayer('night-lights-heat')) {
       map.setLayoutProperty('night-lights-heat', 'visibility', vis(showLights))
       map.setLayoutProperty('night-lights-core', 'visibility', vis(showLights))
-      map.setFilter('night-lights-heat', ['<=', ['get', 'year'], year])
-      map.setFilter('night-lights-core', ['<=', ['get', 'year'], year])
-      map.setPaintProperty('night-lights-heat', 'heatmap-intensity', 0.65 + progress * 1.15)
-      map.setPaintProperty('night-lights-heat', 'heatmap-radius', 16 + progress * 18)
     }
 
     if (map.getLayer('urban-3d')) {
@@ -419,7 +419,6 @@ export default function App() {
       map.setPaintProperty('urban-3d', 'fill-extrusion-color', [
         'case',
         ['==', ['get', 'year'], year], '#dcfce7',
-        ['>', ['get', 'year'], 2025], '#22c55e',
         '#5c8aa8',
       ])
     }
@@ -590,13 +589,13 @@ export default function App() {
                 <div className="cfa-map-overlay-badge">
                   <strong>{activeHub ? activeHub.name : t.allCorridor} · {year}</strong>
                   <span className="cfa-sensor-pill">{sensorForYear(year, lang)}</span>
-                  {year >= 2030 && <span className="cfa-sensor-pill">{t.scenarioTag}</span>}
-                  <span className="num">NTL {activePoint.nightLightIdx}/100 · {activePoint.builtHa} ha</span>
+                  <span className="num">
+                    {activePoint.nightLightSum.toLocaleString('en-US')} rad · {activePoint.litPixels ? `${activePoint.litPixels} px (500m)` : `${activePoint.builtHa} ha`}
+                  </span>
                 </div>
                 <div className="cfa-map-legend">
                   <span className="cfa-legend-item"><i className="cfa-swatch" style={{ background: '#fde047' }} /> {t.lLights}</span>
-                  <span className="cfa-legend-item"><i className="cfa-swatch" style={{ background: '#5c8aa8' }} /> ≤ 2025</span>
-                  <span className="cfa-legend-item"><i className="cfa-swatch" style={{ background: '#22c55e' }} /> 2030–2035</span>
+                  <span className="cfa-legend-item"><i className="cfa-swatch" style={{ background: '#5c8aa8' }} /> {t.lUrban}</span>
                   <span className="cfa-legend-item"><i className="cfa-swatch line" style={{ background: '#4ade80' }} /> {t.lCostanera}</span>
                 </div>
               </div>
@@ -623,7 +622,7 @@ export default function App() {
                     }}
                   />
                   <div className="cfa-year-ticks">
-                    <span>1995</span><span>2012</span><span>2025</span><span>2035</span>
+                    <span>2000</span><span>2012</span><span>2015</span><span>2024</span>
                   </div>
                 </div>
 
@@ -649,17 +648,17 @@ export default function App() {
           </div>
 
           <section className="cfa-kpi-grid">
-            <Kpi label={t.kNtl} value={`${activePoint.nightLightIdx}/100`} num color="var(--cfa-green)">
+            <Kpi label={t.kNtl} value={activePoint.nightLightSum.toLocaleString('en-US')} num color="var(--cfa-green)">
               <span className="muted small">{year} · {sensorForYear(year, lang)}</span>
             </Kpi>
-            <Kpi label={t.kBuilt} value={`${activeSeries[5].builtHa} → ${activeSeries[7].builtHa} ha`} num>
+            <Kpi label={t.kBuilt} value={`${activeSeries[activeSeries.length - 1].builtHa} ha`} num>
               <span className="muted small">{activeHub ? activeHub.name : t.allCorridor}</span>
             </Kpi>
             <Kpi label={t.kAir} value={activeHub ? `${activeHub.eciAirportMin} min` : '14–48 min'} num>
               <span className="muted small">Aeropuerto Costa Esmeralda</span>
             </Kpi>
-            <Kpi label={t.kGrowth} value={activeHub ? `+${activeHub.ntlGrowthPct}%` : '+346%'} num color="var(--emerald)">
-              <span className="muted small">1995 → 2025</span>
+            <Kpi label={t.kGrowth} value={`+${(activeHub ? activeHub.ntlGrowthPct : CORRIDOR_GROWTH_PCT).toLocaleString('en-US')}%`} num color="var(--emerald)">
+              <span className="muted small">2000 → 2024 (GeoTIFF real)</span>
             </Kpi>
           </section>
 
@@ -672,15 +671,15 @@ export default function App() {
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,20,25,0.08)" />
                   <XAxis dataKey="year" tick={{ fontSize: 12 }} />
                   <YAxis yAxisId="ha" tick={{ fontSize: 12 }} unit=" ha" />
-                  <YAxis yAxisId="ntl" orientation="right" domain={[0, 100]} tick={{ fontSize: 12 }} />
+                  <YAxis yAxisId="ntl" orientation="right" tick={{ fontSize: 12 }} />
                   <Tooltip />
                   <Legend />
                   <ReferenceLine
-                    x={2025}
-                    yAxisId="ha"
+                    x={2012}
+                    yAxisId="ntl"
                     stroke="#64748b"
                     strokeDasharray="4 4"
-                    label={{ value: lang === 'es' ? 'Inicio escenario →' : 'Scenario →', position: 'top', fontSize: 11, fill: '#64748b' }}
+                    label={{ value: 'VIIRS 500m →', position: 'top', fontSize: 11, fill: '#64748b' }}
                   />
                   <Area
                     yAxisId="ha"
@@ -694,8 +693,8 @@ export default function App() {
                   <Line
                     yAxisId="ntl"
                     type="monotone"
-                    dataKey="nightLightIdx"
-                    name={lang === 'es' ? 'Índice luces nocturnas (0–100)' : 'Nighttime Light Index (0–100)'}
+                    dataKey="nightLightSum"
+                    name={lang === 'es' ? 'Radiancia nocturna medida (suma)' : 'Measured nighttime radiance (sum)'}
                     stroke="#166534"
                     strokeWidth={2.5}
                     dot={{ r: 4 }}

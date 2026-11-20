@@ -110,13 +110,16 @@ export const REGIONAL_COUNTRIES: CountryMacro[] = [
   },
 ]
 
-export const CORRIDOR_YEARS = [1995, 2005, 2012, 2015, 2020, 2025, 2030, 2035] as const
+import realNtl from './data/realNtl.json'
+
+export const CORRIDOR_YEARS = [2000, 2005, 2012, 2015, 2020, 2024] as const
 export type CorridorYear = (typeof CORRIDOR_YEARS)[number]
 
 export type CorridorSeriesPoint = {
   year: CorridorYear
   builtHa: number
-  nightLightIdx: number
+  nightLightSum: number
+  litPixels?: number
 }
 
 export type CorridorHub = {
@@ -130,18 +133,47 @@ export type CorridorHub = {
   costaneraKm: number
   eciAirportMin: number
   penasBlancasMin: number
-  ntl2025: number
+  ntl2024Sum: number
   ntlGrowthPct: number
-  built2025Ha: number
-  built2035Ha: number
+  built2024Ha: number
   summary: Record<Lang, string>
   series: CorridorSeriesPoint[]
 }
 
 export function sensorForYear(y: CorridorYear, lang: Lang): string {
-  if (y <= 2012) return lang === 'es' ? 'DMSP-OLS (Archivo 1995–2012)' : 'DMSP-OLS (Archive 1995–2012)'
-  if (y <= 2025) return lang === 'es' ? 'NASA VIIRS Black Marble' : 'NASA VIIRS Black Marble'
-  return lang === 'es' ? 'Proyección Costanera (2030–2035)' : 'Costanera Projection (2030–2035)'
+  if (y < 2012) return lang === 'es' ? 'VNL V2.1 (500 m · Serie 2000–2011)' : 'VNL V2.1 (500 m · 2000–2011)'
+  return lang === 'es' ? 'NASA VIIRS V2.1 (500 m real)' : 'NASA VIIRS V2.1 (500 m measured)'
+}
+
+type RawSummary = Record<'ostional' | 'sjds' | 'gigante' | 'corridor', Record<string, { mean: number; sum: number; max: number; lit_pixels?: number }>>
+const NTL_SUMMARY = realNtl.summary as RawSummary
+const NTL_PIXELS = realNtl.pixels as Record<string, number[][]>
+
+function realSum(hub: 'ostional' | 'sjds' | 'gigante' | 'corridor', y: CorridorYear): number {
+  return Math.round(NTL_SUMMARY[hub][String(y)]?.sum ?? 0)
+}
+
+function growthPct(hub: 'ostional' | 'sjds' | 'gigante' | 'corridor'): number {
+  const s2000 = realSum(hub, 2000)
+  const s2024 = realSum(hub, 2024)
+  return s2000 > 0 ? Math.round(((s2024 - s2000) / s2000) * 100) : 0
+}
+
+export function getRealNightLightsGeoJson(year: CorridorYear) {
+  const pts = NTL_PIXELS[String(year)] ?? []
+  return {
+    type: 'FeatureCollection' as const,
+    features: pts.map(([lat, lon, val]) => ({
+      type: 'Feature' as const,
+      properties: {
+        year,
+        radiance: val,
+        // Peso normalizado logarítmicamente para visualizar tanto focos urbanos como electrificación costera
+        weight: Math.min(1, Math.log10(1 + val) / Math.log10(151)),
+      },
+      geometry: { type: 'Point' as const, coordinates: [lon, lat] as [number, number] },
+    })),
+  }
 }
 
 export const CORRIDOR_HUBS: CorridorHub[] = [
@@ -156,23 +188,20 @@ export const CORRIDOR_HUBS: CorridorHub[] = [
     costaneraKm: 0.9,
     eciAirportMin: 48,
     penasBlancasMin: 26,
-    ntl2025: 34,
-    ntlGrowthPct: 325,
-    built2025Ha: 34,
-    built2035Ha: 62,
+    ntl2024Sum: realSum('ostional', 2024),
+    ntlGrowthPct: growthPct('ostional'),
+    built2024Ha: 32,
     summary: {
-      es: 'Extremo sur del corredor. Conectividad directa hacia Peñas Blancas y expansión progresiva sobre el eje de la Costanera.',
-      en: 'Southernmost anchor of the corridor. Direct connectivity toward Peñas Blancas and steady expansion along the Costanera axis.',
+      es: 'Extremo sur del corredor. Radiancia medida pasó de 40 (2000) a 130 (2020–2024), con conectividad directa hacia Peñas Blancas.',
+      en: 'Southernmost anchor. Measured radiance grew from 40 (2000) to 130 (2020–2024), with direct access toward Peñas Blancas.',
     },
     series: [
-      { year: 1995, builtHa: 8, nightLightIdx: 8 },
-      { year: 2005, builtHa: 12, nightLightIdx: 12 },
-      { year: 2012, builtHa: 16, nightLightIdx: 18 },
-      { year: 2015, builtHa: 18, nightLightIdx: 21 },
-      { year: 2020, builtHa: 24, nightLightIdx: 27 },
-      { year: 2025, builtHa: 34, nightLightIdx: 34 },
-      { year: 2030, builtHa: 47, nightLightIdx: 46 },
-      { year: 2035, builtHa: 62, nightLightIdx: 58 },
+      { year: 2000, builtHa: 10, nightLightSum: realSum('ostional', 2000) },
+      { year: 2005, builtHa: 12, nightLightSum: realSum('ostional', 2005) },
+      { year: 2012, builtHa: 16, nightLightSum: realSum('ostional', 2012) },
+      { year: 2015, builtHa: 18, nightLightSum: realSum('ostional', 2015) },
+      { year: 2020, builtHa: 24, nightLightSum: realSum('ostional', 2020) },
+      { year: 2024, builtHa: 32, nightLightSum: realSum('ostional', 2024) },
     ],
   },
   {
@@ -186,23 +215,20 @@ export const CORRIDOR_HUBS: CorridorHub[] = [
     costaneraKm: 0.4,
     eciAirportMin: 36,
     penasBlancasMin: 32,
-    ntl2025: 84,
-    ntlGrowthPct: 282,
-    built2025Ha: 238,
-    built2035Ha: 356,
+    ntl2024Sum: realSum('sjds', 2024),
+    ntlGrowthPct: growthPct('sjds'),
+    built2024Ha: 228,
     summary: {
-      es: 'Núcleo urbano y de servicios del Pacífico Sur. Mayor densidad lumínica y articulador continuo entre Ostional, Maderas y Tola.',
-      en: 'Urban and services core of the South Pacific. Highest light density and continuous bridge between Ostional, Maderas, and Tola.',
+      es: 'Núcleo urbano del Pacífico Sur. Radiancia medida pasó de 944 (2000) a 3.370 (2024) en píxeles de 500 m.',
+      en: 'Urban core of the South Pacific. Measured radiance rose from 944 (2000) to 3,370 (2024) across 500 m pixels.',
     },
     series: [
-      { year: 1995, builtHa: 64, nightLightIdx: 22 },
-      { year: 2005, builtHa: 96, nightLightIdx: 38 },
-      { year: 2012, builtHa: 124, nightLightIdx: 54 },
-      { year: 2015, builtHa: 142, nightLightIdx: 61 },
-      { year: 2020, builtHa: 186, nightLightIdx: 72 },
-      { year: 2025, builtHa: 238, nightLightIdx: 84 },
-      { year: 2030, builtHa: 295, nightLightIdx: 91 },
-      { year: 2035, builtHa: 356, nightLightIdx: 96 },
+      { year: 2000, builtHa: 78, nightLightSum: realSum('sjds', 2000) },
+      { year: 2005, builtHa: 96, nightLightSum: realSum('sjds', 2005) },
+      { year: 2012, builtHa: 124, nightLightSum: realSum('sjds', 2012) },
+      { year: 2015, builtHa: 142, nightLightSum: realSum('sjds', 2015) },
+      { year: 2020, builtHa: 186, nightLightSum: realSum('sjds', 2020) },
+      { year: 2024, builtHa: 228, nightLightSum: realSum('sjds', 2024) },
     ],
   },
   {
@@ -216,31 +242,31 @@ export const CORRIDOR_HUBS: CorridorHub[] = [
     costaneraKm: 1.4,
     eciAirportMin: 14,
     penasBlancasMin: 52,
-    ntl2025: 61,
-    ntlGrowthPct: 510,
-    built2025Ha: 79,
-    built2035Ha: 148,
+    ntl2024Sum: realSum('gigante', 2024),
+    ntlGrowthPct: growthPct('gigante'),
+    built2024Ha: 74,
     summary: {
-      es: 'Eje de mayor aceleración relativa desde 2015 tras la apertura del Aeropuerto Costa Esmeralda (ECI) y el desarrollo costero de Tola.',
-      en: 'Fastest-accelerating hub since 2015 following the opening of Costa Esmeralda Airport (ECI) and coastal development in Tola.',
+      es: 'Eje de mayor aceleración orbital: de 14 (2000) a 340 (2024) tras la apertura del Aeropuerto Costa Esmeralda (ECI).',
+      en: 'Fastest orbital acceleration: from 14 (2000) to 340 (2024) following the opening of Costa Esmeralda Airport (ECI).',
     },
     series: [
-      { year: 1995, builtHa: 11, nightLightIdx: 10 },
-      { year: 2005, builtHa: 19, nightLightIdx: 16 },
-      { year: 2012, builtHa: 28, nightLightIdx: 25 },
-      { year: 2015, builtHa: 36, nightLightIdx: 34 },
-      { year: 2020, builtHa: 54, nightLightIdx: 48 },
-      { year: 2025, builtHa: 79, nightLightIdx: 61 },
-      { year: 2030, builtHa: 112, nightLightIdx: 74 },
-      { year: 2035, builtHa: 148, nightLightIdx: 85 },
+      { year: 2000, builtHa: 14, nightLightSum: realSum('gigante', 2000) },
+      { year: 2005, builtHa: 19, nightLightSum: realSum('gigante', 2005) },
+      { year: 2012, builtHa: 28, nightLightSum: realSum('gigante', 2012) },
+      { year: 2015, builtHa: 36, nightLightSum: realSum('gigante', 2015) },
+      { year: 2020, builtHa: 54, nightLightSum: realSum('gigante', 2020) },
+      { year: 2024, builtHa: 74, nightLightSum: realSum('gigante', 2024) },
     ],
   },
 ]
 
+export const CORRIDOR_GROWTH_PCT = growthPct('corridor')
+
 export const CORRIDOR_TOTAL_SERIES: CorridorSeriesPoint[] = CORRIDOR_YEARS.map((y, idx) => ({
   year: y,
   builtHa: CORRIDOR_HUBS.reduce((acc, h) => acc + h.series[idx].builtHa, 0),
-  nightLightIdx: Math.round(CORRIDOR_HUBS.reduce((acc, h) => acc + h.series[idx].nightLightIdx, 0) / CORRIDOR_HUBS.length),
+  nightLightSum: realSum('corridor', y),
+  litPixels: NTL_SUMMARY.corridor[String(y)]?.lit_pixels ?? 0,
 }))
 
 /** Eje costero continuo Ostional → Escameca → San Juan del Sur → Maderas → Brito → Playa Gigante → Tola */
@@ -325,36 +351,28 @@ export function buildContinuousCorridor(): {
         const lon = baseLon + spreadLon
         const distFromSpine = Math.hypot(spreadLat, spreadLon)
 
-        // Los polos históricos nacen desde 1995–2012; los tramos intermedios se conectan en 2015–2035
-        let year: CorridorYear = 2025
+        let year: CorridorYear = 2024
         if (isSjds) {
-          if (distFromSpine < 0.005) year = 1995
-          else if (distFromSpine < 0.008) year = 2005
-          else if (distFromSpine < 0.011) year = 2012
-          else if (distFromSpine < 0.014) year = 2015
-          else if (distFromSpine < 0.017) year = 2020
-          else if (distFromSpine < 0.020) year = 2025
-          else if (distFromSpine < 0.023) year = 2030
-          else year = 2035
+          if (distFromSpine < 0.006) year = 2000
+          else if (distFromSpine < 0.010) year = 2005
+          else if (distFromSpine < 0.014) year = 2012
+          else if (distFromSpine < 0.018) year = 2015
+          else if (distFromSpine < 0.022) year = 2020
+          else year = 2024
         } else if (isGigante || isOstional) {
           const r = pseudoRand(k * 3.7)
-          if (r < 0.14) year = 1995
-          else if (r < 0.28) year = 2005
-          else if (r < 0.42) year = 2012
-          else if (r < 0.56) year = 2015
-          else if (r < 0.70) year = 2020
-          else if (r < 0.82) year = 2025
-          else if (r < 0.91) year = 2030
-          else year = 2035
+          if (r < 0.16) year = 2000
+          else if (r < 0.32) year = 2005
+          else if (r < 0.48) year = 2012
+          else if (r < 0.66) year = 2015
+          else if (r < 0.84) year = 2020
+          else year = 2024
         } else {
-          // Tramos continuos entre polos: se iluminan progresivamente 2015 -> 2035
           const r = pseudoRand(k * 4.3)
-          if (r < 0.15) year = 2012
-          else if (r < 0.32) year = 2015
-          else if (r < 0.50) year = 2020
-          else if (r < 0.68) year = 2025
-          else if (r < 0.85) year = 2030
-          else year = 2035
+          if (r < 0.20) year = 2012
+          else if (r < 0.44) year = 2015
+          else if (r < 0.72) year = 2020
+          else year = 2024
         }
 
         const height = Math.max(
