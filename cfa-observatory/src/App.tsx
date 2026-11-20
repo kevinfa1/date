@@ -69,87 +69,95 @@ const BASE_STYLE: StyleSpecification = {
 
 const COPY = {
   es: {
-    brandSub: 'Observatorio Económico y Territorial · Pacífico Sur',
-    eyebrow: 'Inteligencia Territorial Abierta · Sin exposición de obras privadas',
-    headline: '30 años de evidencia satelital y datos públicos del Pacífico Sur',
-    lead: 'Analiza cómo evolucionan Ostional, San Juan del Sur y Playa Gigante (Tola) desde los primeros registros de luces nocturnas (1995) hasta 2035, cruzando infraestructura oficial (MTI, ECI) y resguardo ambiental (MARENA, SINAPRED).',
-    chips: ['Luces nocturnas 1995–2025', 'Solo hitos públicos emblemáticos', 'Conectividad ECI · Costanera · Peñas Blancas'],
-    mapTitle: 'Corredor Ostional · San Juan del Sur · Playa Gigante (Tola)',
-    mapSub: 'Haz clic en los hitos públicos para enfocar la cámara 3D o alterna la capa de luces nocturnas.',
+    brandSub: 'Ingeniería Civil & Industrial · Pacífico Sur, Rivas',
+    backHome: '← Constructora Flores Aburto',
+    eyebrow: 'CONSTRUCTORA FLORES ABURTO · DEBIDA DILIGENCIA FÍSICA Y DE CAPITAL',
+    headline: 'La construcción empírica ignora la física. Nosotros diseñamos sobre evidencia.',
+    lead: 'Cruzamos 30 años de luces nocturnas orbitales (DMSP-OLS / NASA VIIRS), elevación del terreno y datos oficiales del MTI, MARENA y SINAPRED en Ostional, San Juan del Sur y Playa Gigante (Tola) para garantizar certeza estructural, logística JIT y preservación de capital.',
+    chips: ['Luces nocturnas 1995–2025', 'Sin exposición de obras privadas', 'Logística ECI · Costanera · Peñas Blancas'],
+    mapTitle: 'Corredor Costero de Rivas · Ostional → San Juan del Sur → Playa Gigante',
+    mapSub: 'Selecciona un polo o hito público para inspeccionar topografía, conectividad vial y consolidación nocturna.',
     allCorridor: 'Corredor completo',
-    timeline: 'Línea de tiempo (1995–2035)',
+    timeline: 'Horizonte temporal (1995–2035)',
     play: 'Reproducir',
     pause: 'Pausar',
-    layers: 'Capas satelitales y Gobierno',
+    layers: 'Capas orbitales y oficiales',
     lViirs: 'Luces nocturnas (NASA VIIRS)',
     lUrban: 'Huella construida 3D',
-    lCostanera: 'Carretera Costanera (MTI)',
+    lCostanera: 'Vector Costanera (MTI)',
     lMarena: 'Refugio La Flor (MARENA)',
-    lSinapred: 'Cota baja costera (SINAPRED)',
-    connTitle: 'Conectividad estratégica',
+    lSinapred: 'Franja de amenaza baja (SINAPRED)',
+    connTitle: 'Conectividad y cadena de suministro',
     connCostanera: 'Carretera Costanera (MTI)',
     connEci: 'Aeropuerto Costa Esmeralda (ECI)',
     connBorder: 'Frontera Peñas Blancas (CR)',
-    kNtl: 'Índice de luces nocturnas',
+    kNtl: 'Índice de consolidación nocturna',
     kBuilt: 'Huella construida 2025 → 2035',
     kAir: 'Acceso aéreo (ECI · Tola)',
     kSafe: 'Cota segura + Vivienda INIDE',
-    chartTitle: 'Dinámica económica y urbana',
-    chartSub: 'Consolidación nocturna (VIIRS/DMSP-OLS) frente a expansión construida (ha) · 1995–2035',
-    ddTitle: 'Debida diligencia territorial y mercado',
-    engTitle: 'Estándar constructivo CFA para este tipo de zona',
-    engSub: 'Sin revelar ubicaciones privadas de obra: así responde nuestra ingeniería a las condiciones reales de este polo.',
-    tableTitle: 'Matriz comparativa del corredor (1995–2035)',
-    tableSub: 'Haz clic en un hito para enfocarlo en el mapa 3D o exporta el resumen completo en CSV.',
-    csvBtn: 'Descargar dossier CSV',
-    methodTitle: 'Nota metodológica y seguridad de datos',
-    methodBody: 'Por seguridad de proyectos y propietarios, este observatorio no publica coordenadas de obras de CFA. Los puntos ancla corresponden exclusivamente a hitos geográficos públicos. La serie 1995–2012 refleja el archivo histórico DMSP-OLS (~1 km) y 2012–2025 el sensor NASA VIIRS Black Marble (~500 m); en producción las series y polígonos de MTI, MARENA e INETER/SINAPRED se conectan a las capas GIS digitalizadas.',
-    footerLeft: 'CFA · Observatorio Territorial del Pacífico Sur (Rivas, Nicaragua)',
-    footerRight: 'Fuentes referenciales: NASA DMSP-OLS / VIIRS · Esri · Copernicus DEM · MTI · MARENA · INETER / SINAPRED · INIDE',
+    chartTitle: 'Volumen de capital y expansión física',
+    chartSub: 'Consolidación nocturna (VIIRS/DMSP-OLS) frente a área construida (ha) · 1995–2035',
+    ddTitle: 'Certeza jurídica, ambiental y geotécnica',
+    engTitle: 'Estándar de Ingeniería de Valor CFA para este entorno',
+    engSub: 'Sin revelar ubicaciones privadas de proyectos: así neutraliza nuestra ingeniería las fuerzas físicas y operativas de este polo.',
+    tableTitle: 'Matriz comparativa del corredor Pacífico Sur (1995–2035)',
+    tableSub: 'Haz clic en cualquier polo para enfocar la cámara 3D o exporta el dossier técnico en CSV.',
+    csvBtn: 'Exportar dossier CSV',
+    methodTitle: 'Nota metodológica y resguardo de seguridad',
+    methodBody: 'Por seguridad de proyectos y propietarios, CFA no publica coordenadas de obras privadas. Los marcadores corresponden exclusivamente a hitos geográficos públicos. La serie 1995–2012 proviene de DMSP-OLS (~1 km) y 2012–2025 de NASA VIIRS Black Marble (~500 m); en producción las capas oficiales (MTI, MARENA, INETER/SINAPRED) se sirven mediante proxy seguro en servidor.',
+    footerLeft: 'Constructora Flores Aburto (CFA) · San Juan del Sur, Rivas, Nicaragua',
+    footerRight: 'Fuentes: NASA DMSP-OLS / VIIRS · Esri · Copernicus DEM · MTI · MARENA · INETER / SINAPRED · INIDE',
   },
   en: {
-    brandSub: 'South Pacific Territorial & Economic Observatory',
-    eyebrow: 'Open Territorial Intelligence · Zero private project coordinates exposed',
-    headline: '30 years of satellite evidence and public data across Nicaragua’s South Pacific',
-    lead: 'Explore how Ostional, San Juan del Sur, and Playa Gigante (Tola) evolved from the earliest night-light records (1995) to 2035, cross-referenced with public infrastructure (MTI, ECI Airport) and environmental/hazard zones (MARENA, SINAPRED).',
-    chips: ['Nighttime lights 1995–2025', 'Public landmarks only', 'ECI Airport · Coastal Highway · Peñas Blancas'],
-    mapTitle: 'Ostional · San Juan del Sur · Playa Gigante (Tola) Corridor',
-    mapSub: 'Click any public landmark to fly the 3D camera or toggle the nighttime lights layer.',
+    brandSub: 'Civil & Industrial Engineering · Rivas South Pacific',
+    backHome: '← Constructora Flores Aburto',
+    eyebrow: 'CONSTRUCTORA FLORES ABURTO · PHYSICAL & CAPITAL DUE DILIGENCE',
+    headline: 'Empirical construction ignores physics. We engineer on hard evidence.',
+    lead: 'We cross-reference 30 years of orbital night-lights (DMSP-OLS / NASA VIIRS), terrain elevation, and official MTI, MARENA, and SINAPRED data across Ostional, San Juan del Sur, and Playa Gigante (Tola) to deliver structural survival, JIT supply certainty, and asset longevity.',
+    chips: ['Nighttime lights 1995–2025', 'Zero private project coordinates', 'ECI Airport · Coastal Highway · Peñas Blancas'],
+    mapTitle: 'Rivas Coastal Corridor · Ostional → San Juan del Sur → Playa Gigante',
+    mapSub: 'Select a public hub or landmark to inspect elevation, highway access, and nighttime consolidation.',
     allCorridor: 'Full corridor',
-    timeline: 'Timeline (1995–2035)',
+    timeline: 'Time horizon (1995–2035)',
     play: 'Play',
     pause: 'Pause',
-    layers: 'Satellite & Government Layers',
+    layers: 'Orbital & official layers',
     lViirs: 'Nighttime lights (NASA VIIRS)',
     lUrban: '3D built-up footprint',
-    lCostanera: 'Coastal Highway (MTI)',
+    lCostanera: 'Costanera Highway Vector (MTI)',
     lMarena: 'La Flor Refuge (MARENA)',
-    lSinapred: 'Low coastal elevation (SINAPRED)',
-    connTitle: 'Strategic connectivity',
+    lSinapred: 'Low coastal hazard zone (SINAPRED)',
+    connTitle: 'Logistics & supply chain access',
     connCostanera: 'Coastal Highway (MTI)',
     connEci: 'Costa Esmeralda Airport (ECI)',
     connBorder: 'Peñas Blancas Border (CR)',
-    kNtl: 'Nighttime Light Index',
+    kNtl: 'Nighttime Consolidation Index',
     kBuilt: 'Built-up footprint 2025 → 2035',
     kAir: 'Air access (ECI · Tola)',
     kSafe: 'Safe elevation + INIDE housing',
-    chartTitle: 'Economic & urban momentum',
+    chartTitle: 'Capital volume & physical expansion',
     chartSub: 'Nighttime light consolidation (VIIRS/DMSP-OLS) vs. built-up area (ha) · 1995–2035',
-    ddTitle: 'Territorial & market due diligence',
-    engTitle: 'CFA construction standard for this zone profile',
-    engSub: 'Without disclosing private project coordinates: how our engineering responds to this hub’s real conditions.',
-    tableTitle: 'Corridor comparative matrix (1995–2035)',
-    tableSub: 'Click any landmark to focus the 3D map or export the full summary as CSV.',
-    csvBtn: 'Download CSV dossier',
-    methodTitle: 'Methodology & data security note',
-    methodBody: 'For project and owner security, this observatory never publishes coordinates of private CFA builds. Map pins represent public geographic landmarks only. The 1995–2012 series reflects historical DMSP-OLS (~1 km) and 2012–2025 reflects NASA VIIRS Black Marble (~500 m); in production, MTI, MARENA, and INETER/SINAPRED geometries load from digitized GIS layers.',
-    footerLeft: 'CFA · South Pacific Territorial Observatory (Rivas, Nicaragua)',
-    footerRight: 'Reference sources: NASA DMSP-OLS / VIIRS · Esri · Copernicus DEM · MTI · MARENA · INETER / SINAPRED · INIDE',
+    ddTitle: 'Geotechnical, environmental & market certainty',
+    engTitle: 'CFA Value Engineering standard for this environment',
+    engSub: 'Without disclosing private project coordinates: how our engineering neutralizes physical and operational risks in this hub.',
+    tableTitle: 'South Pacific Corridor comparative matrix (1995–2035)',
+    tableSub: 'Click any hub to fly the 3D camera or export the technical dossier as CSV.',
+    csvBtn: 'Export CSV dossier',
+    methodTitle: 'Methodology & security protocol',
+    methodBody: 'For project and owner security, CFA never publishes coordinates of private builds. Map pins represent public geographic landmarks only. 1995–2012 reflects historical DMSP-OLS (~1 km) and 2012–2025 reflects NASA VIIRS Black Marble (~500 m); in production, official GIS layers and API keys are routed through a secure server-side proxy.',
+    footerLeft: 'Constructora Flores Aburto (CFA) · San Juan del Sur, Rivas, Nicaragua',
+    footerRight: 'Sources: NASA DMSP-OLS / VIIRS · Esri · Copernicus DEM · MTI · MARENA · INETER / SINAPRED · INIDE',
   },
 } as const
 
+function initialLang(): Lang {
+  const q = new URLSearchParams(window.location.search).get('lang')
+  if (q === 'en' || q === 'es') return q
+  return 'es'
+}
+
 export default function App() {
-  const [lang, setLang] = useState<Lang>('es')
+  const [lang, setLang] = useState<Lang>(initialLang)
   const [zoneId, setZoneId] = useState<ZoneId>('sjds')
   const [yearIdx, setYearIdx] = useState<number>(CORRIDOR_YEARS.indexOf(2025))
   const [playing, setPlaying] = useState(false)
@@ -376,14 +384,19 @@ export default function App() {
           <div className="brand-wrap">
             <div className="brand-mark">CFA</div>
             <div>
-              <div className="brand-title">CFA · Pacífico Sur</div>
+              <div className="brand-title">Constructora Flores Aburto</div>
               <div className="brand-sub">{t.brandSub}</div>
             </div>
           </div>
 
-          <div className="segmented" role="group" aria-label="Language">
-            <button type="button" className={lang === 'es' ? 'on' : ''} onClick={() => setLang('es')}>ES</button>
-            <button type="button" className={lang === 'en' ? 'on' : ''} onClick={() => setLang('en')}>EN</button>
+          <div className="topbar-right">
+            <a className="back-link" href="https://constructorafloresaburto.com" rel="noopener">
+              {t.backHome}
+            </a>
+            <div className="segmented" role="group" aria-label="Language">
+              <button type="button" className={lang === 'es' ? 'on' : ''} onClick={() => setLang('es')}>ES</button>
+              <button type="button" className={lang === 'en' ? 'on' : ''} onClick={() => setLang('en')}>EN</button>
+            </div>
           </div>
         </div>
       </header>
