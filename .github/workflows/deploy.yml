@@ -1,8 +1,8 @@
-name: Deploy to GitHub Pages
+name: Deploy CFA Observatory to GitHub Pages
 
 on:
   push:
-    branches: [main, main-limpia]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -26,10 +26,13 @@ jobs:
         with:
           node-version: 22
           cache: npm
+          cache-dependency-path: cfa-observatory/package-lock.json
       - run: npm ci
+        working-directory: cfa-observatory
       - run: npm run build
+        working-directory: cfa-observatory
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: cfa-observatory/dist
       - id: deployment
         uses: actions/deploy-pages@v4

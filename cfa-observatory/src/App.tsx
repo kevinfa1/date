@@ -42,6 +42,8 @@ const CORRIDOR_OVERVIEW = {
 
 const BASE_STYLE: StyleSpecification = {
   version: 8,
+  projection: { type: 'globe' },
+  sky: { 'atmosphere-blend': ['interpolate', ['linear'], ['zoom'], 0, 1, 5, 1, 7, 0] },
   sources: {
     satellite: {
       type: 'raster',
@@ -406,6 +408,13 @@ export default function App() {
                 <p className="muted small" style={{ margin: '4px 0 0' }}>{t.mapSub}</p>
               </div>
               <div className="cfa-zone-pills">
+                <button
+                  type="button"
+                  className="cfa-zone-pill"
+                  onClick={() => mapRef.current?.flyTo({ center: [-85.8, 12.2], zoom: 2.2, pitch: 0, bearing: 0, duration: 1200 })}
+                >
+                  {lang === 'es' ? 'Globo 3D' : '3D Globe'}
+                </button>
                 <button type="button" className="cfa-zone-pill" onClick={() => focusZone('all')}>{t.allCorridor}</button>
                 {CORRIDOR_ZONES.map((z) => (
                   <button key={z.id} type="button" className={`cfa-zone-pill${zoneId === z.id ? ' on' : ''}`} onClick={() => focusZone(z.id)}>
