@@ -3,7 +3,7 @@ import type {
 } from './api'
 
 export type Lang = 'es' | 'en'
-export type Phase = 'briefing' | 'planet' | 'studio'
+export type Phase = 'briefing' | 'planet' | 'studio' | 'cfa'
 
 export function localeOf(lang: Lang): string {
   return lang === 'es' ? 'es' : 'en-US'
@@ -524,6 +524,7 @@ export const UI = {
       briefing: { label: 'Inicio' },
       planet: { label: 'Planeta' },
       studio: { label: 'Análisis' },
+      cfa: { label: 'CFA · Pacífico Sur' },
     },
     phase1: {
       headline: '¿El clima está cambiando',
@@ -646,6 +647,7 @@ export const UI = {
       briefing: { label: 'Home' },
       planet: { label: 'Planet' },
       studio: { label: 'Analysis' },
+      cfa: { label: 'CFA · South Pacific' },
     },
     phase1: {
       headline: 'Is the climate changing',

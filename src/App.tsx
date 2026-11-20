@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 import {
   api,
@@ -28,6 +28,8 @@ import { Briefing } from './Briefing'
 import { ScanAndRegionsView } from './ScanView'
 import { TrendView } from './TrendView'
 
+const CfaObservatory = lazy(() => import('./CfaObservatory').then((m) => ({ default: m.CfaObservatory })))
+
 function withTransition(update: () => void) {
   if (!document.startViewTransition || matchMedia('(prefers-reduced-motion: reduce)').matches) return update()
   document.startViewTransition(() => flushSync(update))
@@ -40,7 +42,7 @@ const TAB_ORDER: Tab[] = ['trend', 'scan', 'compare', 'satellite', 'population',
 
 
 export default function App() {
-  const [phase, setPhase] = useState<Phase>('briefing')
+  const [phase, setPhase] = useState<Phase>(() => (window.location.hash === '#cfa' ? 'cfa' : 'briefing'))
   const [lang, setLang] = useState<Lang>('es')
   const [weatherNow, setWeatherNow] = useState<{ key: string; tempC: number; uv?: number } | null>(null)
 
@@ -308,7 +310,7 @@ export default function App() {
           </button>
 
           <nav className="phase-nav" aria-label="Phases">
-            {(['briefing', 'planet', 'studio'] as Phase[]).map((p) => {
+            {(['briefing', 'planet', 'studio', 'cfa'] as Phase[]).map((p) => {
               const item = t.phases[p]
               const active = phase === p
               return (
@@ -337,7 +339,15 @@ export default function App() {
 
       <main>
         {error && <p className="error" role="alert">{error}</p>}
-        {!cat && !error && <p className="muted">{lang === 'es' ? 'Cargando catálogo NASA…' : 'Loading NASA catalog…'}</p>}
+        {!cat && !error && phase !== 'cfa' && (
+          <p className="muted">{lang === 'es' ? 'Cargando catálogo NASA…' : 'Loading NASA catalog…'}</p>
+        )}
+
+        {phase === 'cfa' && (
+          <Suspense fallback={<Loader label={lang === 'es' ? 'Cargando observatorio CFA…' : 'Loading CFA observatory…'} />}>
+            <CfaObservatory />
+          </Suspense>
+        )}
 
         {phase === 'briefing' && (
           <Briefing lang={lang} cat={cat} onExplore={() => switchPhase('planet')} onDemo={openDemo} />
