@@ -441,11 +441,15 @@ export default function App() {
     if (h) map.flyTo({ center: [h.lon, h.lat], zoom: h.zoom, pitch: h.pitch, bearing: h.bearing, duration: 1000 })
   }
 
+  const isHostedOnCfa = typeof window !== 'undefined' && window.location.hostname.includes('constructorafloresaburto.com')
+  const siteBase = isHostedOnCfa ? '../' : 'https://constructorafloresaburto.com/'
+  const extProps = isHostedOnCfa ? {} : { target: '_blank' as const, rel: 'noopener noreferrer' }
+
   return (
     <div className="app-shell">
       <nav className="navbar">
         <div className="navbar-inner">
-          <a className="nav-brand" href={`https://constructorafloresaburto.com/?lang=${lang}`}>
+          <a className="nav-brand" href={`${siteBase}?lang=${lang}`} {...extProps}>
             <img src="./logo_flores_aburto.png" alt="Constructora Flores Aburto" />
             <span className="nav-brand-title">
               Constructora Flores Aburto
@@ -454,11 +458,11 @@ export default function App() {
           </a>
 
           <ul className="nav-links">
-            <li><a href="https://constructorafloresaburto.com/#about">{lang === 'es' ? 'Quiénes Somos' : 'About Us'}</a></li>
-            <li><a href="https://constructorafloresaburto.com/#services">{lang === 'es' ? 'Servicios' : 'Engineering'}</a></li>
-            <li><a href="https://constructorafloresaburto.com/#gallery">{lang === 'es' ? 'Obras' : 'Projects'}</a></li>
+            <li><a href={`${siteBase}#about`} {...extProps}>{lang === 'es' ? 'Quiénes Somos' : 'About Us'}</a></li>
+            <li><a href={`${siteBase}#services`} {...extProps}>{lang === 'es' ? 'Servicios' : 'Engineering'}</a></li>
+            <li><a href={`${siteBase}#gallery`} {...extProps}>{lang === 'es' ? 'Obras' : 'Projects'}</a></li>
             <li><a href="#observatorio" className="nav-active">{lang === 'es' ? 'Observatorio' : 'Observatory'}</a></li>
-            <li><a href="https://constructorafloresaburto.com/#contact">{lang === 'es' ? 'Contacto' : 'Contact'}</a></li>
+            <li><a href={`${siteBase}#contact`} {...extProps}>{lang === 'es' ? 'Contacto' : 'Contact'}</a></li>
           </ul>
 
           <div className="segmented" role="group" aria-label="Language">
@@ -742,11 +746,11 @@ export default function App() {
           <div>
             <h4>{lang === 'es' ? 'Navegación' : 'Navigation'}</h4>
             <ul>
-              <li><a href="https://constructorafloresaburto.com/#about">{lang === 'es' ? 'Quiénes Somos' : 'About Us'}</a></li>
-              <li><a href="https://constructorafloresaburto.com/#services">{lang === 'es' ? 'Servicios de Ingeniería' : 'Engineering Services'}</a></li>
-              <li><a href="https://constructorafloresaburto.com/#gallery">{lang === 'es' ? 'Galería de Obras' : 'Project Gallery'}</a></li>
-              <li><a href="https://constructorafloresaburto.com/#dossier">{lang === 'es' ? 'Dossier Institucional (PDF)' : 'Institutional Dossier (PDF)'}</a></li>
-              <li><a href="https://constructorafloresaburto.com/portal/">{lang === 'es' ? 'Portal de Clientes' : 'Client Portal'}</a></li>
+              <li><a href={`${siteBase}#about`} {...extProps}>{lang === 'es' ? 'Quiénes Somos' : 'About Us'}</a></li>
+              <li><a href={`${siteBase}#services`} {...extProps}>{lang === 'es' ? 'Servicios de Ingeniería' : 'Engineering Services'}</a></li>
+              <li><a href={`${siteBase}#gallery`} {...extProps}>{lang === 'es' ? 'Galería de Obras' : 'Project Gallery'}</a></li>
+              <li><a href={`${siteBase}#dossier`} {...extProps}>{lang === 'es' ? 'Dossier Institucional (PDF)' : 'Institutional Dossier (PDF)'}</a></li>
+              <li><a href={`${siteBase}portal/`} {...extProps}>{lang === 'es' ? 'Portal de Clientes' : 'Client Portal'}</a></li>
             </ul>
           </div>
         </div>
