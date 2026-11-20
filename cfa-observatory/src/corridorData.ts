@@ -1,5 +1,97 @@
 export type Lang = 'es' | 'en'
 export type ZoneId = 'corridor' | 'ostional' | 'sjds' | 'gigante'
+export type CountryId = 'nic' | 'cri' | 'pan' | 'mex' | 'col'
+
+export type CountryMacro = {
+  id: CountryId
+  name: Record<Lang, string>
+  lat: number
+  lon: number
+  gdpUsdB: number
+  gdpPerCapitaUsd: number
+  laborDailyUsd: number
+  constructionIndex: number
+  turnkeySqmUsd: number
+  note: Record<Lang, string>
+}
+
+export const REGIONAL_COUNTRIES: CountryMacro[] = [
+  {
+    id: 'nic',
+    name: { es: 'Nicaragua', en: 'Nicaragua' },
+    lat: 12.13,
+    lon: -85.8,
+    gdpUsdB: 18.8,
+    gdpPerCapitaUsd: 2750,
+    laborDailyUsd: 22,
+    constructionIndex: 92,
+    turnkeySqmUsd: 1150,
+    note: {
+      es: 'Mayor eficiencia regional en costo de mano de obra calificada y metro cuadrado llave en mano frente a mercados vecinos.',
+      en: 'Highest regional efficiency in skilled labor cost and turnkey cost per m² compared to neighboring coastal markets.',
+    },
+  },
+  {
+    id: 'cri',
+    name: { es: 'Costa Rica', en: 'Costa Rica' },
+    lat: 9.93,
+    lon: -84.09,
+    gdpUsdB: 95.3,
+    gdpPerCapitaUsd: 18100,
+    laborDailyUsd: 54,
+    constructionIndex: 48,
+    turnkeySqmUsd: 2250,
+    note: {
+      es: 'Mercado maduro con cargas sociales y mano de obra constructiva ~2,4x más costosa que el Pacífico Sur nicaragüense.',
+      en: 'Mature market with social overhead and construction labor ~2.4x higher than Nicaragua’s South Pacific.',
+    },
+  },
+  {
+    id: 'pan',
+    name: { es: 'Panamá', en: 'Panama' },
+    lat: 8.98,
+    lon: -79.52,
+    gdpUsdB: 87.3,
+    gdpPerCapitaUsd: 19200,
+    laborDailyUsd: 48,
+    constructionIndex: 55,
+    turnkeySqmUsd: 1980,
+    note: {
+      es: 'Hub financiero con costos salariales y de ejecución vertical elevados en zonas costeras.',
+      en: 'Financial hub with elevated wage structures and vertical execution costs in coastal zones.',
+    },
+  },
+  {
+    id: 'mex',
+    name: { es: 'México (Pacífico)', en: 'Mexico (Pacific)' },
+    lat: 20.65,
+    lon: -105.22,
+    gdpUsdB: 1811.0,
+    gdpPerCapitaUsd: 13900,
+    laborDailyUsd: 36,
+    constructionIndex: 68,
+    turnkeySqmUsd: 1620,
+    note: {
+      es: 'Escala industrial amplia, pero con mayor costo de suelo e insumos en destinos costeros consolidados.',
+      en: 'Broad industrial scale, though with higher land and input costs in consolidated coastal destinations.',
+    },
+  },
+  {
+    id: 'col',
+    name: { es: 'Colombia (Caribe)', en: 'Colombia (Caribbean)' },
+    lat: 10.39,
+    lon: -75.48,
+    gdpUsdB: 417.0,
+    gdpPerCapitaUsd: 7900,
+    laborDailyUsd: 29,
+    constructionIndex: 76,
+    turnkeySqmUsd: 1380,
+    note: {
+      es: 'Mano de obra competitiva, aunque con mayor distancia logística hacia el mercado norteamericano.',
+      en: 'Competitive labor, though farther logistically from North American buyer corridors.',
+    },
+  },
+]
 
 export const CORRIDOR_YEARS = [1995, 2005, 2012, 2015, 2020, 2025, 2030, 2035] as const
 export type CorridorYear = (typeof CORRIDOR_YEARS)[number]

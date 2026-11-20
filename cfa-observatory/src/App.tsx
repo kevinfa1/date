@@ -18,14 +18,14 @@ import {
   CORRIDOR_TOTAL_SERIES,
   CORRIDOR_YEARS,
   COSTANERA_MTI_GEOJSON,
+  REGIONAL_COUNTRIES,
   sensorForYear,
   type CorridorYear,
+  type CountryId,
   type Lang,
   type ZoneId,
 } from './corridorData'
 import { Button, Card, Kpi, Switch } from './ui'
-
-type AppTab = 'globe' | 'corridor'
 
 const GIBS = 'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best'
 const ESRI_IMAGERY = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
@@ -90,16 +90,20 @@ const COPY = {
   es: {
     brandSub: 'Ingeniería Civil & Industrial · Pacífico Sur, Rivas',
     backHome: '← Constructora Flores Aburto',
-    tabGlobe: 'Globo Terráqueo',
-    tabCorridor: 'Visor 3D · Corredor Costero',
-    globeEyebrow: 'CONTEXTO GLOBAL Y CONECTIVIDAD REGIONAL',
-    globeTitle: 'El Corredor Pacífico Sur de Rivas en escala continental',
-    globeLead: 'Posición estratégica entre Norteamérica y Sudamérica, con acceso aéreo directo al Aeropuerto Costa Esmeralda (ECI) y conexión terrestre por la Carretera Costanera hacia Costa Rica.',
-    globeNight: 'Modo noche orbital (NASA VIIRS)',
-    globeEnter: 'Entrar al Visor 3D Ostional – SJDS – Tola →',
-    corridorEyebrow: 'CONSTRUCTORA FLORES ABURTO · EVOLUCIÓN CONTINUA 1995–2035',
-    corridorTitle: 'Corredor Costero Continuo · Ostional → San Juan del Sur → Tola',
-    corridorSub: 'Observa cómo se encienden y conectan las luces nocturnas y la huella construida a lo largo de los 45 km costeros desde 1995 hasta 2035.',
+    globeEyebrow: 'ESCALA REGIONAL · COMPARATIVA MACROECONÓMICA Y COSTO CONSTRUCTIVO',
+    globeTitle: 'Globo Terráqueo: Nicaragua frente a mercados costeros de la región',
+    globeLead: 'Selecciona un país en el globo para comparar su PIB, PIB per cápita y competitividad en mano de obra y costo constructivo por metro cuadrado.',
+    globeNight: 'Luces orbitales (VIIRS)',
+    globeJump: 'Bajar al Corredor 3D (Ostional – Tola) ↓',
+    gdpLabel: 'PIB Nominal',
+    gdpCapLabel: 'PIB per cápita',
+    laborLabel: 'Mano de obra obra gris/día',
+    indexLabel: 'Índice Eficiencia Constructiva',
+    sqmLabel: 'Costo ref. llave en mano',
+    rankingTitle: 'Competitividad constructiva regional (0–100)',
+    corridorEyebrow: 'VISOR 3D CONTINUO · OSTIONAL → SAN JUAN DEL SUR → PLAYA GIGANTE / TOLA',
+    corridorTitle: 'Desarrollo costero continuo y luces nocturnas (1995–2035)',
+    corridorSub: 'Mueve la línea de tiempo para observar cómo se encienden las luces nocturnas y se consolida la franja de 45 km.',
     allCorridor: 'Tramo completo (45 km)',
     timeline: 'Línea de tiempo (1995–2035)',
     play: 'Reproducir',
@@ -119,21 +123,25 @@ const COPY = {
     chartTitle: 'Evolución lumínica y expansión física',
     chartSub: 'Crecimiento continuo de actividad nocturna (0–100) y superficie construida (ha) · 1995–2035',
     footerLeft: 'Constructora Flores Aburto (CFA) · San Juan del Sur, Rivas, Nicaragua',
-    footerRight: 'Visualización continua sobre eje costero Ostional – San Juan del Sur – Playa Gigante / Tola',
+    footerRight: 'Globo macroeconómico regional + corredor costero continuo Ostional – San Juan del Sur – Tola',
   },
   en: {
     brandSub: 'Civil & Industrial Engineering · Rivas South Pacific',
     backHome: '← Constructora Flores Aburto',
-    tabGlobe: '3D Globe',
-    tabCorridor: '3D Corridor Viewer',
-    globeEyebrow: 'GLOBAL CONTEXT & REGIONAL CONNECTIVITY',
-    globeTitle: 'The Rivas South Pacific Corridor at continental scale',
-    globeLead: 'Strategic positioning between North and South America, with direct air access via Costa Esmeralda Airport (ECI) and coastal highway connectivity toward Costa Rica.',
-    globeNight: 'Orbital night mode (NASA VIIRS)',
-    globeEnter: 'Open 3D Corridor Ostional – SJDS – Tola →',
-    corridorEyebrow: 'CONSTRUCTORA FLORES ABURTO · CONTINUOUS EVOLUTION 1995–2035',
-    corridorTitle: 'Continuous Coastal Corridor · Ostional → San Juan del Sur → Tola',
-    corridorSub: 'Watch nighttime lights and built-up footprint ignite and connect continuously across the 45 km coastline from 1995 to 2035.',
+    globeEyebrow: 'REGIONAL SCALE · MACROECONOMICS & CONSTRUCTION COST BENCHMARK',
+    globeTitle: '3D Globe: Nicaragua vs. regional coastal markets',
+    globeLead: 'Select a country on the globe to compare GDP, GDP per capita, and competitiveness in construction labor and turnkey cost per square meter.',
+    globeNight: 'Orbital lights (VIIRS)',
+    globeJump: 'Jump to 3D Corridor (Ostional – Tola) ↓',
+    gdpLabel: 'Nominal GDP',
+    gdpCapLabel: 'GDP per capita',
+    laborLabel: 'Construction labor / day',
+    indexLabel: 'Construction Efficiency Index',
+    sqmLabel: 'Turnkey ref. cost',
+    rankingTitle: 'Regional construction competitiveness (0–100)',
+    corridorEyebrow: 'CONTINUOUS 3D VIEWER · OSTIONAL → SAN JUAN DEL SUR → PLAYA GIGANTE / TOLA',
+    corridorTitle: 'Continuous coastal growth & nighttime lights (1995–2035)',
+    corridorSub: 'Scrub the timeline to watch nighttime lights ignite and connect along the 45 km coastline.',
     allCorridor: 'Full 45 km stretch',
     timeline: 'Timeline (1995–2035)',
     play: 'Play',
@@ -153,7 +161,7 @@ const COPY = {
     chartTitle: 'Night-light & physical expansion',
     chartSub: 'Continuous nighttime activity (0–100) and built-up area (ha) · 1995–2035',
     footerLeft: 'Constructora Flores Aburto (CFA) · San Juan del Sur, Rivas, Nicaragua',
-    footerRight: 'Continuous coastal visualization: Ostional – San Juan del Sur – Playa Gigante / Tola',
+    footerRight: 'Regional macro globe + continuous coastal corridor Ostional – San Juan del Sur – Tola',
   },
 } as const
 
@@ -162,101 +170,110 @@ function initialLang(): Lang {
   return q === 'en' || q === 'es' ? q : 'es'
 }
 
-function GlobeTab({ lang, onEnterCorridor }: { lang: Lang; onEnterCorridor: () => void }) {
+export default function App() {
+  const [lang, setLang] = useState<Lang>(initialLang)
+  const [countryId, setCountryId] = useState<CountryId>('nic')
   const [nightMode, setNightMode] = useState(true)
-  const containerRef = useRef<HTMLDivElement>(null)
-  const mapRef = useRef<maplibregl.Map | null>(null)
-  const readyRef = useRef(false)
+
+  const [zoneId, setZoneId] = useState<ZoneId>('corridor')
+  const [yearIdx, setYearIdx] = useState<number>(CORRIDOR_YEARS.indexOf(2025))
+  const [playing, setPlaying] = useState(false)
+  const [showLights, setShowLights] = useState(true)
+  const [showUrban, setShowUrban] = useState(true)
+  const [showCostanera, setShowCostanera] = useState(true)
+
+  const globeContainerRef = useRef<HTMLDivElement>(null)
+  const globeMapRef = useRef<maplibregl.Map | null>(null)
+  const globeReadyRef = useRef(false)
+  const countryBtnsRef = useRef<Map<CountryId, HTMLButtonElement>>(new Map())
+
+  const corridorSectionRef = useRef<HTMLDivElement>(null)
+  const corridorContainerRef = useRef<HTMLDivElement>(null)
+  const corridorMapRef = useRef<maplibregl.Map | null>(null)
+  const corridorReadyRef = useRef(false)
+  const hubBtnsRef = useRef<Map<string, HTMLButtonElement>>(new Map())
+
   const t = COPY[lang]
+  const country = REGIONAL_COUNTRIES.find((c) => c.id === countryId) ?? REGIONAL_COUNTRIES[0]
+  const year: CorridorYear = CORRIDOR_YEARS[yearIdx]
+  const { cells, lights } = useMemo(() => buildContinuousCorridor(), [])
+  const activeHub = CORRIDOR_HUBS.find((h) => h.id === zoneId) ?? null
+  const activeSeries = activeHub ? activeHub.series : CORRIDOR_TOTAL_SERIES
+  const activePoint = activeSeries.find((s) => s.year === year) ?? activeSeries[5]
 
   useEffect(() => {
-    const el = containerRef.current
+    document.documentElement.lang = lang
+  }, [lang])
+
+  // 1. Inicialización del Globo Terráqueo superior
+  useEffect(() => {
+    const el = globeContainerRef.current
     if (!el) return
     const map = new maplibregl.Map({
       container: el,
       style: GLOBE_STYLE,
-      center: [-85.8, 13.5],
-      zoom: 2.35,
-      pitch: 10,
+      center: [-85.5, 13.0],
+      zoom: 2.8,
+      pitch: 12,
     })
     map.addControl(new maplibregl.NavigationControl({ visualizePitch: false }), 'top-right')
-    mapRef.current = map
+    globeMapRef.current = map
 
-    const markerEl = document.createElement('button')
-    markerEl.type = 'button'
-    markerEl.className = 'cfa-globe-pin'
-    markerEl.innerHTML = '<span>Rivas · Ostional – SJDS – Tola</span>'
-    markerEl.addEventListener('click', onEnterCorridor)
+    const created: maplibregl.Marker[] = []
+    const btns = new Map<CountryId, HTMLButtonElement>()
 
-    const marker = new maplibregl.Marker({ element: markerEl, anchor: 'center' })
-      .setLngLat([-85.89, 11.25])
-      .addTo(map)
+    REGIONAL_COUNTRIES.forEach((c) => {
+      const btn = document.createElement('button')
+      btn.type = 'button'
+      btn.className = `cfa-globe-pin${c.id === countryId ? ' active' : ''}`
+      btn.textContent = c.name.es
+      btn.addEventListener('click', () => {
+        setCountryId(c.id)
+        map.flyTo({ center: [c.lon, c.lat], zoom: 3.4, duration: 900 })
+      })
+      btns.set(c.id, btn)
+      created.push(new maplibregl.Marker({ element: btn, anchor: 'center' }).setLngLat([c.lon, c.lat]).addTo(map))
+    })
+    countryBtnsRef.current = btns
 
     map.on('load', () => {
-      readyRef.current = true
+      globeReadyRef.current = true
       map.setLayoutProperty('night', 'visibility', nightMode ? 'visible' : 'none')
     })
 
     return () => {
-      readyRef.current = false
-      marker.remove()
+      globeReadyRef.current = false
+      created.forEach((m) => m.remove())
+      countryBtnsRef.current.clear()
       map.remove()
-      mapRef.current = null
+      globeMapRef.current = null
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
-    const map = mapRef.current
-    if (!map || !readyRef.current) return
+    countryBtnsRef.current.forEach((btn, id) => {
+      const c = REGIONAL_COUNTRIES.find((x) => x.id === id)
+      if (c) btn.textContent = c.name[lang]
+      btn.classList.toggle('active', id === countryId)
+    })
+  }, [countryId, lang])
+
+  useEffect(() => {
+    const map = globeMapRef.current
+    if (!map || !globeReadyRef.current) return
     map.setLayoutProperty('night', 'visibility', nightMode ? 'visible' : 'none')
   }, [nightMode])
 
-  return (
-    <div className="cfa-stack">
-      <Card as="section" className="cfa-hero">
-        <span className="cfa-eyebrow">{t.globeEyebrow}</span>
-        <h1>{t.globeTitle}</h1>
-        <p className="cfa-hero-lead">{t.globeLead}</p>
-        <div className="cfa-hero-actions">
-          <Button variant="primary" className="btn-brass" onClick={onEnterCorridor}>
-            {t.globeEnter}
-          </Button>
-          <Switch checked={nightMode} onChange={setNightMode}>
-            <span style={{ color: '#fff' }}>{t.globeNight}</span>
-          </Switch>
-        </div>
-      </Card>
+  function selectCountry(id: CountryId) {
+    setCountryId(id)
+    const c = REGIONAL_COUNTRIES.find((x) => x.id === id)
+    if (c && globeMapRef.current) {
+      globeMapRef.current.flyTo({ center: [c.lon, c.lat], zoom: 3.4, duration: 900 })
+    }
+  }
 
-      <Card as="section" className="cfa-globe-card">
-        <div ref={containerRef} className="cfa-globe-canvas" />
-      </Card>
-    </div>
-  )
-}
-
-function CorridorTab({ lang }: { lang: Lang }) {
-  const [zoneId, setZoneId] = useState<ZoneId>('corridor')
-  const [yearIdx, setYearIdx] = useState<number>(CORRIDOR_YEARS.indexOf(2025))
-  const [playing, setPlaying] = useState(false)
-
-  const [showLights, setShowLights] = useState(true)
-  const [showUrban, setShowUrban] = useState(true)
-  const [showCostanera, setShowCostanera] = useState(true)
-
-  const containerRef = useRef<HTMLDivElement>(null)
-  const mapRef = useRef<maplibregl.Map | null>(null)
-  const readyRef = useRef(false)
-  const markersRef = useRef<Map<string, HTMLButtonElement>>(new Map())
-
-  const t = COPY[lang]
-  const year: CorridorYear = CORRIDOR_YEARS[yearIdx]
-  const { cells, lights } = useMemo(() => buildContinuousCorridor(), [])
-
-  const activeHub = CORRIDOR_HUBS.find((h) => h.id === zoneId) ?? null
-  const activeSeries = activeHub ? activeHub.series : CORRIDOR_TOTAL_SERIES
-  const activePoint = activeSeries.find((s) => s.year === year) ?? activeSeries[5]
-
+  // 2. Animación del timeline del Corredor 3D
   useEffect(() => {
     if (!playing) return
     const timer = window.setInterval(() => {
@@ -265,8 +282,9 @@ function CorridorTab({ lang }: { lang: Lang }) {
     return () => window.clearInterval(timer)
   }, [playing])
 
+  // 3. Inicialización del Visor 3D Continuo del Corredor
   useEffect(() => {
-    const el = containerRef.current
+    const el = corridorContainerRef.current
     if (!el) return
     const map = new maplibregl.Map({
       container: el,
@@ -278,20 +296,18 @@ function CorridorTab({ lang }: { lang: Lang }) {
       maxPitch: 68,
     })
     map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right')
-    mapRef.current = map
+    corridorMapRef.current = map
 
-    const createdMarkers: maplibregl.Marker[] = []
+    const created: maplibregl.Marker[] = []
     const btns = new Map<string, HTMLButtonElement>()
 
     map.on('load', () => {
-      readyRef.current = true
+      corridorReadyRef.current = true
 
-      // 1. Vector Costanera continuo
       map.addSource('costanera', { type: 'geojson', data: COSTANERA_MTI_GEOJSON })
       map.addLayer({ id: 'costanera-glow', type: 'line', source: 'costanera', paint: { 'line-color': '#a87e41', 'line-width': 8, 'line-opacity': 0.35 } })
       map.addLayer({ id: 'costanera-line', type: 'line', source: 'costanera', paint: { 'line-color': '#e2bd82', 'line-width': 2.5 } })
 
-      // 2. Luces nocturnas dinámicas (heatmap + núcleos brillantes que cambian con el timeline)
       map.addSource('night-lights', { type: 'geojson', data: lights })
       map.addLayer({
         id: 'night-lights-heat',
@@ -328,7 +344,6 @@ function CorridorTab({ lang }: { lang: Lang }) {
         },
       })
 
-      // 3. Crecimiento 3D continuo a lo largo del tramo costero
       map.addSource('corridor-cells', { type: 'geojson', data: cells })
       map.addLayer({
         id: 'urban-3d',
@@ -343,7 +358,6 @@ function CorridorTab({ lang }: { lang: Lang }) {
         },
       })
 
-      // Marcadores de los 3 polos principales
       CORRIDOR_HUBS.forEach((h) => {
         const btn = document.createElement('button')
         btn.type = 'button'
@@ -354,30 +368,29 @@ function CorridorTab({ lang }: { lang: Lang }) {
           map.flyTo({ center: [h.lon, h.lat], zoom: h.zoom, pitch: h.pitch, bearing: h.bearing, duration: 1000 })
         })
         btns.set(h.id, btn)
-        createdMarkers.push(new maplibregl.Marker({ element: btn, anchor: 'bottom' }).setLngLat([h.lon, h.lat]).addTo(map))
+        created.push(new maplibregl.Marker({ element: btn, anchor: 'bottom' }).setLngLat([h.lon, h.lat]).addTo(map))
       })
-      markersRef.current = btns
+      hubBtnsRef.current = btns
     })
 
     return () => {
-      readyRef.current = false
-      createdMarkers.forEach((m) => m.remove())
-      markersRef.current.clear()
+      corridorReadyRef.current = false
+      created.forEach((m) => m.remove())
+      hubBtnsRef.current.clear()
       map.remove()
-      mapRef.current = null
+      corridorMapRef.current = null
     }
   }, [cells, lights])
 
   useEffect(() => {
-    markersRef.current.forEach((btn, id) => btn.classList.toggle('active', id === zoneId))
+    hubBtnsRef.current.forEach((btn, id) => btn.classList.toggle('active', id === zoneId))
   }, [zoneId])
 
-  // Sincronización dinámica del timeline (1995 -> 2035) en luces nocturnas + bloques 3D
   useEffect(() => {
-    const map = mapRef.current
-    if (!map || !readyRef.current) return
+    const map = corridorMapRef.current
+    if (!map || !corridorReadyRef.current) return
     const vis = (on: boolean) => (on ? 'visible' : 'none')
-    const progress = (year - 1995) / (2035 - 1995) // 0.0 -> 1.0
+    const progress = (year - 1995) / (2035 - 1995)
 
     if (map.getLayer('night-lights-heat')) {
       map.setLayoutProperty('night-lights-heat', 'visibility', vis(showLights))
@@ -407,7 +420,7 @@ function CorridorTab({ lang }: { lang: Lang }) {
 
   function focusTarget(target: ZoneId) {
     setZoneId(target)
-    const map = mapRef.current
+    const map = corridorMapRef.current
     if (!map) return
     if (target === 'corridor') {
       map.flyTo({ ...CORRIDOR_OVERVIEW, duration: 1000 })
@@ -416,151 +429,6 @@ function CorridorTab({ lang }: { lang: Lang }) {
     const h = CORRIDOR_HUBS.find((x) => x.id === target)
     if (h) map.flyTo({ center: [h.lon, h.lat], zoom: h.zoom, pitch: h.pitch, bearing: h.bearing, duration: 1000 })
   }
-
-  return (
-    <div className="cfa-stack">
-      <Card as="section" className="cfa-map-card">
-        <div className="row">
-          <div>
-            <span className="cfa-eyebrow" style={{ color: 'var(--brass)', marginBottom: 4 }}>{t.corridorEyebrow}</span>
-            <h2>{t.corridorTitle}</h2>
-            <p className="muted small" style={{ margin: '4px 0 0' }}>{t.corridorSub}</p>
-          </div>
-          <div className="cfa-zone-pills">
-            <button type="button" className={`cfa-zone-pill${zoneId === 'corridor' ? ' on' : ''}`} onClick={() => focusTarget('corridor')}>
-              {t.allCorridor}
-            </button>
-            {CORRIDOR_HUBS.map((h) => (
-              <button key={h.id} type="button" className={`cfa-zone-pill${zoneId === h.id ? ' on' : ''}`} onClick={() => focusTarget(h.id)}>
-                {h.name}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="cfa-map-layout">
-          <div className="cfa-map-stage">
-            <div ref={containerRef} className="cfa-map-canvas" />
-            <div className="cfa-map-overlay-badge">
-              <strong>{activeHub ? activeHub.name : t.allCorridor} · {year}</strong>
-              <span className="cfa-sensor-pill">{sensorForYear(year, lang)}</span>
-              <span className="num">NTL {activePoint.nightLightIdx}/100 · {activePoint.builtHa} ha</span>
-            </div>
-            <div className="cfa-map-legend">
-              <span className="cfa-legend-item"><i className="cfa-swatch" style={{ background: '#fde047' }} /> {t.lLights}</span>
-              <span className="cfa-legend-item"><i className="cfa-swatch" style={{ background: '#38bdf8' }} /> ≤ 2025</span>
-              <span className="cfa-legend-item"><i className="cfa-swatch" style={{ background: '#d4aa6a' }} /> 2030–2035</span>
-              <span className="cfa-legend-item"><i className="cfa-swatch line" style={{ background: '#e2bd82' }} /> {t.lCostanera}</span>
-            </div>
-          </div>
-
-          <aside className="cfa-map-sidebar">
-            <div className="cfa-sidebar-section">
-              <span className="cfa-sidebar-kicker">{t.timeline}</span>
-              <div className="row">
-                <span className="cfa-year-big">{year}</span>
-                <Button variant="secondary" onClick={() => setPlaying((v) => !v)}>
-                  {playing ? t.pause : t.play}
-                </Button>
-              </div>
-              <input
-                type="range"
-                min={0}
-                max={CORRIDOR_YEARS.length - 1}
-                step={1}
-                value={yearIdx}
-                aria-label={t.timeline}
-                onChange={(e) => {
-                  setPlaying(false)
-                  setYearIdx(Number(e.target.value))
-                }}
-              />
-              <div className="cfa-year-ticks">
-                <span>1995</span><span>2012</span><span>2025</span><span>2035</span>
-              </div>
-            </div>
-
-            <div className="cfa-sidebar-section">
-              <span className="cfa-sidebar-kicker">{t.layers}</span>
-              <Switch checked={showLights} onChange={setShowLights}>{t.lLights}</Switch>
-              <Switch checked={showUrban} onChange={setShowUrban}>{t.lUrban}</Switch>
-              <Switch checked={showCostanera} onChange={setShowCostanera}>{t.lCostanera}</Switch>
-            </div>
-
-            <div className="cfa-sidebar-section">
-              <span className="cfa-sidebar-kicker">{t.connTitle}</span>
-              <div className="cfa-conn-box">
-                <div className="cfa-conn-row"><span>{t.connCostanera}</span><strong>{activeHub ? `${activeHub.costaneraKm.toFixed(1)} km` : '45 km'}</strong></div>
-                <div className="cfa-conn-row"><span>{t.connEci}</span><strong>{activeHub ? `${activeHub.eciAirportMin} min` : '14–48 min'}</strong></div>
-                <div className="cfa-conn-row"><span>{t.connBorder}</span><strong>{activeHub ? `${activeHub.penasBlancasMin} min` : '26–52 min'}</strong></div>
-              </div>
-              {activeHub && <p className="muted small" style={{ margin: '6px 0 0' }}>{activeHub.summary[lang]}</p>}
-            </div>
-          </aside>
-        </div>
-      </Card>
-
-      <section className="cfa-kpi-grid">
-        <Kpi label={t.kNtl} value={`${activePoint.nightLightIdx}/100`} num color="var(--brass)">
-          <span className="muted small">{year} · {sensorForYear(year, lang)}</span>
-        </Kpi>
-        <Kpi label={t.kBuilt} value={`${activeSeries[5].builtHa} → ${activeSeries[7].builtHa} ha`} num>
-          <span className="muted small">{activeHub ? activeHub.name : t.allCorridor}</span>
-        </Kpi>
-        <Kpi label={t.kAir} value={activeHub ? `${activeHub.eciAirportMin} min` : '14–48 min'} num>
-          <span className="muted small">Aeropuerto Costa Esmeralda</span>
-        </Kpi>
-        <Kpi label={t.kGrowth} value={activeHub ? `+${activeHub.ntlGrowthPct}%` : '+346%'} num color="var(--emerald)">
-          <span className="muted small">1995 → 2025</span>
-        </Kpi>
-      </section>
-
-      <Card as="section">
-        <h3>{t.chartTitle} · {activeHub ? activeHub.name : t.allCorridor}</h3>
-        <p className="muted small" style={{ margin: '4px 0 0' }}>{t.chartSub}</p>
-        <div style={{ width: '100%', height: 280, marginTop: 16 }}>
-          <ResponsiveContainer>
-            <ComposedChart data={activeSeries}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,20,25,0.08)" />
-              <XAxis dataKey="year" tick={{ fontSize: 12 }} />
-              <YAxis yAxisId="ha" tick={{ fontSize: 12 }} unit=" ha" />
-              <YAxis yAxisId="ntl" orientation="right" domain={[0, 100]} tick={{ fontSize: 12 }} />
-              <Tooltip />
-              <Legend />
-              <Area
-                yAxisId="ha"
-                type="monotone"
-                dataKey="builtHa"
-                name={lang === 'es' ? 'Área construida (ha)' : 'Built-up area (ha)'}
-                stroke="#1f4e68"
-                fill="rgba(31, 78, 104, 0.22)"
-                strokeWidth={2.5}
-              />
-              <Line
-                yAxisId="ntl"
-                type="monotone"
-                dataKey="nightLightIdx"
-                name={lang === 'es' ? 'Índice luces nocturnas (0–100)' : 'Nighttime Light Index (0–100)'}
-                stroke="#a87e41"
-                strokeWidth={2.5}
-                dot={{ r: 4 }}
-              />
-            </ComposedChart>
-          </ResponsiveContainer>
-        </div>
-      </Card>
-    </div>
-  )
-}
-
-export default function App() {
-  const [lang, setLang] = useState<Lang>(initialLang)
-  const [tab, setTab] = useState<AppTab>('corridor')
-  const t = COPY[lang]
-
-  useEffect(() => {
-    document.documentElement.lang = lang
-  }, [lang])
 
   return (
     <div className="app-shell">
@@ -573,15 +441,6 @@ export default function App() {
               <div className="brand-sub">{t.brandSub}</div>
             </div>
           </div>
-
-          <nav className="segmented" aria-label="Views">
-            <button type="button" className={tab === 'globe' ? 'on' : ''} onClick={() => setTab('globe')}>
-              {t.tabGlobe}
-            </button>
-            <button type="button" className={tab === 'corridor' ? 'on' : ''} onClick={() => setTab('corridor')}>
-              {t.tabCorridor}
-            </button>
-          </nav>
 
           <div className="topbar-right">
             <a className="back-link" href="https://constructorafloresaburto.com" rel="noopener">
@@ -596,11 +455,235 @@ export default function App() {
       </header>
 
       <main>
-        {tab === 'globe' ? (
-          <GlobeTab lang={lang} onEnterCorridor={() => setTab('corridor')} />
-        ) : (
-          <CorridorTab lang={lang} />
-        )}
+        <div className="cfa-stack">
+          {/* SECCIÓN 1 (ARRIBA): Globo Terráqueo + Macroeconomía y Competitividad Constructiva */}
+          <Card as="section" className="cfa-map-card">
+            <div className="row">
+              <div>
+                <span className="cfa-eyebrow" style={{ color: 'var(--brass)', marginBottom: 4 }}>{t.globeEyebrow}</span>
+                <h1>{t.globeTitle}</h1>
+                <p className="muted small" style={{ margin: '6px 0 0', maxWidth: '72ch' }}>{t.globeLead}</p>
+              </div>
+              <div className="cfa-zone-pills">
+                {REGIONAL_COUNTRIES.map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    className={`cfa-zone-pill${countryId === c.id ? ' on' : ''}`}
+                    onClick={() => selectCountry(c.id)}
+                  >
+                    {c.name[lang]}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="cfa-globe-layout">
+              <div className="cfa-globe-stage">
+                <div ref={globeContainerRef} className="cfa-globe-stage-canvas" />
+                <div className="cfa-globe-toolbar">
+                  <Switch checked={nightMode} onChange={setNightMode}>
+                    <span style={{ color: '#fff' }}>{t.globeNight}</span>
+                  </Switch>
+                </div>
+              </div>
+
+              <aside className="cfa-macro-panel">
+                <div className="row">
+                  <h2 style={{ fontSize: '1.25rem' }}>{country.name[lang]}</h2>
+                  <span className="cfa-gov-tag">
+                    {t.indexLabel}: {country.constructionIndex}/100
+                  </span>
+                </div>
+                <p className="muted small" style={{ margin: 0 }}>{country.note[lang]}</p>
+
+                <div className="cfa-macro-grid">
+                  <div className="cfa-macro-item">
+                    <span>{t.gdpLabel}</span>
+                    <strong className="num">${country.gdpUsdB.toFixed(1)}B</strong>
+                  </div>
+                  <div className="cfa-macro-item">
+                    <span>{t.gdpCapLabel}</span>
+                    <strong className="num">${country.gdpPerCapitaUsd.toLocaleString('en-US')}</strong>
+                  </div>
+                  <div className="cfa-macro-item">
+                    <span>{t.laborLabel}</span>
+                    <strong className="num" style={{ color: country.id === 'nic' ? 'var(--emerald)' : undefined }}>
+                      ${country.laborDailyUsd} USD
+                    </strong>
+                  </div>
+                  <div className="cfa-macro-item">
+                    <span>{t.sqmLabel}</span>
+                    <strong className="num" style={{ color: country.id === 'nic' ? 'var(--emerald)' : undefined }}>
+                      ${country.turnkeySqmUsd.toLocaleString('en-US')}/m²
+                    </strong>
+                  </div>
+                </div>
+
+                <div className="cfa-rank-block">
+                  <span className="cfa-sidebar-kicker">{t.rankingTitle}</span>
+                  {REGIONAL_COUNTRIES.map((c) => (
+                    <div key={c.id} className="cfa-rank-row" onClick={() => selectCountry(c.id)}>
+                      <span className={c.id === countryId ? 'cfa-rank-active' : ''}>{c.name[lang]}</span>
+                      <div className="cfa-rank-track">
+                        <div
+                          className="cfa-rank-fill"
+                          style={{
+                            width: `${c.constructionIndex}%`,
+                            background: c.id === 'nic' ? 'var(--emerald)' : 'var(--brass)',
+                          }}
+                        />
+                      </div>
+                      <strong className="num small">{c.constructionIndex}</strong>
+                    </div>
+                  ))}
+                </div>
+
+                <Button
+                  variant="primary"
+                  className="btn-brass"
+                  onClick={() => corridorSectionRef.current?.scrollIntoView({ behavior: 'smooth' })}
+                >
+                  {t.globeJump}
+                </Button>
+              </aside>
+            </div>
+          </Card>
+
+          {/* SECCIÓN 2 (ABAJO): Visor 3D Continuo del Corredor Ostional – SJDS – Playa Gigante / Tola */}
+          <div ref={corridorSectionRef}>
+          <Card as="section" className="cfa-map-card">
+            <div className="row">
+              <div>
+                <span className="cfa-eyebrow" style={{ color: 'var(--brass)', marginBottom: 4 }}>{t.corridorEyebrow}</span>
+                <h2>{t.corridorTitle}</h2>
+                <p className="muted small" style={{ margin: '4px 0 0' }}>{t.corridorSub}</p>
+              </div>
+              <div className="cfa-zone-pills">
+                <button type="button" className={`cfa-zone-pill${zoneId === 'corridor' ? ' on' : ''}`} onClick={() => focusTarget('corridor')}>
+                  {t.allCorridor}
+                </button>
+                {CORRIDOR_HUBS.map((h) => (
+                  <button key={h.id} type="button" className={`cfa-zone-pill${zoneId === h.id ? ' on' : ''}`} onClick={() => focusTarget(h.id)}>
+                    {h.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="cfa-map-layout">
+              <div className="cfa-map-stage">
+                <div ref={corridorContainerRef} className="cfa-map-canvas" />
+                <div className="cfa-map-overlay-badge">
+                  <strong>{activeHub ? activeHub.name : t.allCorridor} · {year}</strong>
+                  <span className="cfa-sensor-pill">{sensorForYear(year, lang)}</span>
+                  <span className="num">NTL {activePoint.nightLightIdx}/100 · {activePoint.builtHa} ha</span>
+                </div>
+                <div className="cfa-map-legend">
+                  <span className="cfa-legend-item"><i className="cfa-swatch" style={{ background: '#fde047' }} /> {t.lLights}</span>
+                  <span className="cfa-legend-item"><i className="cfa-swatch" style={{ background: '#38bdf8' }} /> ≤ 2025</span>
+                  <span className="cfa-legend-item"><i className="cfa-swatch" style={{ background: '#d4aa6a' }} /> 2030–2035</span>
+                  <span className="cfa-legend-item"><i className="cfa-swatch line" style={{ background: '#e2bd82' }} /> {t.lCostanera}</span>
+                </div>
+              </div>
+
+              <aside className="cfa-map-sidebar">
+                <div className="cfa-sidebar-section">
+                  <span className="cfa-sidebar-kicker">{t.timeline}</span>
+                  <div className="row">
+                    <span className="cfa-year-big">{year}</span>
+                    <Button variant="secondary" onClick={() => setPlaying((v) => !v)}>
+                      {playing ? t.pause : t.play}
+                    </Button>
+                  </div>
+                  <input
+                    type="range"
+                    min={0}
+                    max={CORRIDOR_YEARS.length - 1}
+                    step={1}
+                    value={yearIdx}
+                    aria-label={t.timeline}
+                    onChange={(e) => {
+                      setPlaying(false)
+                      setYearIdx(Number(e.target.value))
+                    }}
+                  />
+                  <div className="cfa-year-ticks">
+                    <span>1995</span><span>2012</span><span>2025</span><span>2035</span>
+                  </div>
+                </div>
+
+                <div className="cfa-sidebar-section">
+                  <span className="cfa-sidebar-kicker">{t.layers}</span>
+                  <Switch checked={showLights} onChange={setShowLights}>{t.lLights}</Switch>
+                  <Switch checked={showUrban} onChange={setShowUrban}>{t.lUrban}</Switch>
+                  <Switch checked={showCostanera} onChange={setShowCostanera}>{t.lCostanera}</Switch>
+                </div>
+
+                <div className="cfa-sidebar-section">
+                  <span className="cfa-sidebar-kicker">{t.connTitle}</span>
+                  <div className="cfa-conn-box">
+                    <div className="cfa-conn-row"><span>{t.connCostanera}</span><strong>{activeHub ? `${activeHub.costaneraKm.toFixed(1)} km` : '45 km'}</strong></div>
+                    <div className="cfa-conn-row"><span>{t.connEci}</span><strong>{activeHub ? `${activeHub.eciAirportMin} min` : '14–48 min'}</strong></div>
+                    <div className="cfa-conn-row"><span>{t.connBorder}</span><strong>{activeHub ? `${activeHub.penasBlancasMin} min` : '26–52 min'}</strong></div>
+                  </div>
+                  {activeHub && <p className="muted small" style={{ margin: '6px 0 0' }}>{activeHub.summary[lang]}</p>}
+                </div>
+              </aside>
+            </div>
+          </Card>
+          </div>
+
+          <section className="cfa-kpi-grid">
+            <Kpi label={t.kNtl} value={`${activePoint.nightLightIdx}/100`} num color="var(--brass)">
+              <span className="muted small">{year} · {sensorForYear(year, lang)}</span>
+            </Kpi>
+            <Kpi label={t.kBuilt} value={`${activeSeries[5].builtHa} → ${activeSeries[7].builtHa} ha`} num>
+              <span className="muted small">{activeHub ? activeHub.name : t.allCorridor}</span>
+            </Kpi>
+            <Kpi label={t.kAir} value={activeHub ? `${activeHub.eciAirportMin} min` : '14–48 min'} num>
+              <span className="muted small">Aeropuerto Costa Esmeralda</span>
+            </Kpi>
+            <Kpi label={t.kGrowth} value={activeHub ? `+${activeHub.ntlGrowthPct}%` : '+346%'} num color="var(--emerald)">
+              <span className="muted small">1995 → 2025</span>
+            </Kpi>
+          </section>
+
+          <Card as="section">
+            <h3>{t.chartTitle} · {activeHub ? activeHub.name : t.allCorridor}</h3>
+            <p className="muted small" style={{ margin: '4px 0 0' }}>{t.chartSub}</p>
+            <div style={{ width: '100%', height: 280, marginTop: 16 }}>
+              <ResponsiveContainer>
+                <ComposedChart data={activeSeries}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,20,25,0.08)" />
+                  <XAxis dataKey="year" tick={{ fontSize: 12 }} />
+                  <YAxis yAxisId="ha" tick={{ fontSize: 12 }} unit=" ha" />
+                  <YAxis yAxisId="ntl" orientation="right" domain={[0, 100]} tick={{ fontSize: 12 }} />
+                  <Tooltip />
+                  <Legend />
+                  <Area
+                    yAxisId="ha"
+                    type="monotone"
+                    dataKey="builtHa"
+                    name={lang === 'es' ? 'Área construida (ha)' : 'Built-up area (ha)'}
+                    stroke="#1f4e68"
+                    fill="rgba(31, 78, 104, 0.22)"
+                    strokeWidth={2.5}
+                  />
+                  <Line
+                    yAxisId="ntl"
+                    type="monotone"
+                    dataKey="nightLightIdx"
+                    name={lang === 'es' ? 'Índice luces nocturnas (0–100)' : 'Nighttime Light Index (0–100)'}
+                    stroke="#a87e41"
+                    strokeWidth={2.5}
+                    dot={{ r: 4 }}
+                  />
+                </ComposedChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+        </div>
       </main>
 
       <footer className="site-footer">
