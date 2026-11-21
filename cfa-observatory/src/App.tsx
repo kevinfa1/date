@@ -178,7 +178,7 @@ const COPY = {
 
 function initialLang(): Lang {
   const q = new URLSearchParams(window.location.search).get('lang')
-  return q === 'en' || q === 'es' ? q : 'es'
+  return q === 'es' || q === 'en' ? q : 'en'
 }
 
 export default function App() {

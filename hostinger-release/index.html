@@ -2365,7 +2365,7 @@
     }
     (function syncLangFromUrl() {
       const q = new URLSearchParams(window.location.search).get('lang');
-      if (q === 'en' && activeLang !== 'en') toggleLanguage();
+      if (q !== 'es' && activeLang !== 'en') toggleLanguage();
     })();
   </script>
 <!-- MODAL BÓVEDA CONFIDENCIAL DE CLIENTES (ACCESO PROVISIONAL SEGURO) -->
