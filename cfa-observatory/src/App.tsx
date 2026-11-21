@@ -115,17 +115,17 @@ const COPY = {
     timeline: 'Serie medida (2000–2024)',
     play: 'Reproducir',
     pause: 'Pausar',
-    layers: 'Capas activas',
-    lLights: 'Luces reales 500 m (VNL V2.1)',
-    lUrban: 'Huella 3D referencial',
-    lCostanera: 'Vector Costanera (MTI)',
-    connTitle: 'Logística y conectividad',
+    layers: 'Capas de inversión',
+    lLights: 'Crecimiento eléctrico y comercial',
+    lUrban: 'Zonas de desarrollo costero',
+    lCostanera: 'Nueva Carretera Costanera',
+    connTitle: 'Servicios y conectividad clave',
     connCostanera: 'Carretera Costanera (MTI)',
-    connEci: 'Aeropuerto Costa Esmeralda (ECI)',
+    connHosp: 'Hospitales (SJDS / Rivas)',
     connBorder: 'Frontera Peñas Blancas (CR)',
     kNtl: 'Actividad nocturna vs. 2000',
     kBuilt: 'Plusvalía estimada',
-    kAir: 'Acceso aéreo (ECI)',
+    kHosp: 'Acceso a hospitales',
     kGrowth: 'Expansión eléctrica costera',
     chartTitle: 'Por qué la luz nocturna anticipa el valor del suelo costero',
     chartSub: 'La radiancia auditable NASA/NOAA VIIRS (500 m, VNL V2.1) demuestra dónde llegaron realmente la red eléctrica, el turismo y los servicios que sostienen la plusvalía (Base 2000 = 100)',
@@ -149,7 +149,7 @@ const COPY = {
     macroSource: '2024 macro ref.: World Bank / IMF · Index = 40% labor + 40% $/m² + 20% local supply',
     scenarioTag: 'Measured',
     methodTitle: 'Methodological transparency & appreciation link',
-    methodBody: '1) Construction Efficiency Index (0–100): 40% daily labor competitiveness + 40% turnkey cost/m² + 20% local supply-chain depth (Nicaragua = 82/100). 2) Real nighttime lights: extracted from annual 500 m GeoTIFFs (Zenodo VNL V2.1 / NASA VIIRS, 2000–2024; lit pixels grew from 110 to 620). 3) Coastal Appreciation Index (Base 2000 = 100): land/property value proxy linked to electrification, Costanera/ECI access, and tourism demand.',
+    methodBody: '1) Construction Efficiency Index (0–100): 40% daily labor competitiveness + 40% turnkey cost/m² + 20% local supply-chain depth (Nicaragua = 82/100). 2) Real nighttime lights: extracted from annual 500 m GeoTIFFs (Zenodo VNL V2.1 / NASA VIIRS, 2000–2024; lit pixels grew from 110 to 620). 3) Coastal Appreciation Index (Base 2000 = 100): land/property value proxy linked to electrification, Costanera access, and tourism demand.',
     corridorEyebrow: 'CONTINUOUS 3D VIEWER · OSTIONAL → SAN JUAN DEL SUR → PLAYA GIGANTE / TOLA',
     corridorTitle: 'Why we track orbital nighttime lights across the corridor (2000–2024)',
     corridorSub: 'In coastal markets without a public MLS, nighttime radiance (NASA/NOAA VIIRS · 500 m VNL V2.1 series) is the World Bank-backed proxy for real grid arrival, active commercial density, and infrastructure maturity that underpin long-term property equity.',
@@ -157,17 +157,17 @@ const COPY = {
     timeline: 'Measured series (2000–2024)',
     play: 'Play',
     pause: 'Pause',
-    layers: 'Active layers',
-    lLights: 'Real 500 m lights (VNL V2.1)',
-    lUrban: 'Reference 3D footprint',
-    lCostanera: 'Costanera Vector (MTI)',
-    connTitle: 'Logistics & connectivity',
+    layers: 'Investment layers',
+    lLights: 'Grid & commercial growth',
+    lUrban: 'Coastal development zones',
+    lCostanera: 'New Costanera Highway',
+    connTitle: 'Essential services & access',
     connCostanera: 'Costanera Highway (MTI)',
-    connEci: 'Costa Esmeralda Airport (ECI)',
+    connHosp: 'Hospitals (SJDS / Rivas)',
     connBorder: 'Peñas Blancas Border (CR)',
     kNtl: 'Nighttime activity vs. 2000',
     kBuilt: 'Estimated equity gain',
-    kAir: 'Airport access (ECI)',
+    kHosp: 'Hospital access',
     kGrowth: 'Coastal grid expansion',
     chartTitle: 'Why orbital night lights track coastal land value',
     chartSub: 'Auditable NASA/NOAA VIIRS radiance (500 m, VNL V2.1) proves where grid power, tourism, and services actually arrived—explaining why coastal equity compounds (Base 2000 = 100)',
@@ -651,7 +651,7 @@ export default function App() {
                   <span className="cfa-sidebar-kicker">{t.connTitle}</span>
                   <div className="cfa-conn-box">
                     <div className="cfa-conn-row"><span>{t.connCostanera}</span><strong>{activeHub ? `${activeHub.costaneraKm.toFixed(1)} km` : '45 km'}</strong></div>
-                    <div className="cfa-conn-row"><span>{t.connEci}</span><strong>{activeHub ? `${activeHub.eciAirportMin} min` : '14–48 min'}</strong></div>
+                    <div className="cfa-conn-row"><span>{t.connHosp}</span><strong>{activeHub ? `${activeHub.hospitalMin} min` : '6–28 min'}</strong></div>
                     <div className="cfa-conn-row"><span>{t.connBorder}</span><strong>{activeHub ? `${activeHub.penasBlancasMin} min` : '26–52 min'}</strong></div>
                   </div>
                   {activeHub && <p className="muted small" style={{ margin: '6px 0 0' }}>{activeHub.summary[lang]}</p>}
@@ -677,9 +677,9 @@ export default function App() {
                 {lang === 'es' ? `Valorización acumulada desde 2000` : `Estimated land equity gain since 2000`}
               </span>
             </Kpi>
-            <Kpi label={t.kAir} value={activeHub ? `${activeHub.eciAirportMin} min` : '14–48 min'} num>
+            <Kpi label={t.kHosp} value={activeHub ? `${activeHub.hospitalMin} min` : '6–28 min'} num>
               <span className="muted small">
-                {lang === 'es' ? 'Aeropuerto Costa Esmeralda (Tola)' : 'Costa Esmeralda Airport (Tola)'}
+                {lang === 'es' ? 'Hospitales SJDS y Rivas' : 'SJDS & Rivas Hospitals'}
               </span>
             </Kpi>
             <Kpi

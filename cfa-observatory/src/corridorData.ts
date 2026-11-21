@@ -138,7 +138,7 @@ export type CorridorHub = {
   pitch: number
   bearing: number
   costaneraKm: number
-  eciAirportMin: number
+  hospitalMin: number
   penasBlancasMin: number
   ntl2024Sum: number
   ntlGrowthPct: number
@@ -149,8 +149,8 @@ export type CorridorHub = {
 }
 
 export function sensorForYear(y: CorridorYear, lang: Lang): string {
-  if (y < 2012) return lang === 'es' ? 'VNL V2.1 (500 m · Serie 2000–2011)' : 'VNL V2.1 (500 m · 2000–2011)'
-  return lang === 'es' ? 'NASA VIIRS V2.1 (500 m real)' : 'NASA VIIRS V2.1 (500 m measured)'
+  if (y < 2012) return lang === 'es' ? 'Serie satelital 2000–2011' : 'Satellite record 2000–2011'
+  return lang === 'es' ? 'NASA VIIRS (medido)' : 'NASA VIIRS (measured)'
 }
 
 type RawSummary = Record<'ostional' | 'sjds' | 'gigante' | 'corridor', Record<string, { mean: number; sum: number; max: number; lit_pixels?: number }>>
@@ -193,7 +193,7 @@ export const CORRIDOR_HUBS: CorridorHub[] = [
     pitch: 54,
     bearing: -24,
     costaneraKm: 0.9,
-    eciAirportMin: 48,
+    hospitalMin: 22,
     penasBlancasMin: 26,
     ntl2024Sum: realSum('ostional', 2024),
     ntlGrowthPct: growthPct('ostional'),
@@ -221,15 +221,15 @@ export const CORRIDOR_HUBS: CorridorHub[] = [
     pitch: 55,
     bearing: -22,
     costaneraKm: 0.4,
-    eciAirportMin: 36,
+    hospitalMin: 6,
     penasBlancasMin: 32,
     ntl2024Sum: realSum('sjds', 2024),
     ntlGrowthPct: growthPct('sjds'),
     built2024Ha: 228,
     plusvalia2024: 320,
     summary: {
-      es: 'Mercado consolidado: el salto en radiancia (+257%) refleja densidad comercial, servicios y liquidez sostenida para reventa y renta.',
-      en: 'Consolidated market: +257% radiance growth reflects commercial density, utilities, and strong resale/rental liquidity.',
+      es: 'Mercado consolidado: el salto en radiancia (+257%) refleja densidad comercial, servicios médicos a minutos y liquidez sostenida.',
+      en: 'Consolidated market: +257% radiance growth reflects commercial density, nearby medical care, and strong resale/rental liquidity.',
     },
     series: [
       { year: 2000, builtHa: 78, nightLightSum: realSum('sjds', 2000), plusvaliaIndex: 100 },
@@ -249,15 +249,15 @@ export const CORRIDOR_HUBS: CorridorHub[] = [
     pitch: 54,
     bearing: -26,
     costaneraKm: 1.4,
-    eciAirportMin: 14,
+    hospitalMin: 28,
     penasBlancasMin: 52,
     ntl2024Sum: realSum('gigante', 2024),
     ntlGrowthPct: growthPct('gigante'),
     built2024Ha: 74,
     plusvalia2024: 385,
     summary: {
-      es: 'Mayor aceleración de valorización del corredor tras la apertura del Aeropuerto Costa Esmeralda (ECI) y electrificación de Tola.',
-      en: 'Fastest land appreciation axis in the corridor following Costa Esmeralda Airport (ECI) and Tola grid expansion.',
+      es: 'Mayor aceleración de valorización del corredor impulsada por electrificación costera, inversión turística y conexión con la Costanera.',
+      en: 'Fastest land appreciation axis in the corridor driven by coastal grid expansion, tourism investment, and the new Costanera link.',
     },
     series: [
       { year: 2000, builtHa: 14, nightLightSum: realSum('gigante', 2000), plusvaliaIndex: 100 },
