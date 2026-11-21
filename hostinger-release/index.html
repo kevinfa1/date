@@ -1233,6 +1233,50 @@
       }
     }
 
+  
+    .navbar {
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(14px);
+      padding: 12px 24px;
+      border-bottom: 1px solid var(--cfa-border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    }
+    .navbar-inner {
+      max-width: 1240px;
+      margin: 0 auto;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+    .nav-segmented {
+      display: inline-flex;
+      gap: 2px;
+      padding: 3px;
+      background: #f1f5f9;
+      border: 1px solid var(--cfa-border);
+      border-radius: 8px;
+    }
+    .nav-segmented button {
+      font: inherit;
+      font-size: 0.78rem;
+      font-weight: 700;
+      border: 0;
+      background: transparent;
+      color: var(--cfa-text-muted);
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .nav-segmented button.on {
+      background: var(--cfa-navy);
+      color: #ffffff;
+    }
+
   </style>
 <!-- SEO STRUCTURED DATA: FAQ & LOCAL BUSINESS SCHEMA -->
 <script type="application/ld+json">
@@ -1303,6 +1347,7 @@
 </div>
 <!-- NAVEGACIÓN -->
 <nav class="navbar">
+<div class="navbar-inner">
 <a class="nav-brand" href="#" style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
 <img alt="Constructora Flores Aburto" src="logo_flores_aburto.png" style="height: 46px; width: auto; object-fit: contain;"/>
 <span style="font-size: 18px; font-weight: 800; color: var(--cfa-navy); letter-spacing: -0.3px; line-height: 1.15;">
@@ -1321,6 +1366,11 @@
 </a>
 </li>
 </ul>
+<div class="nav-segmented" role="group" aria-label="Language">
+  <button type="button" id="navLangEs" onclick="if(activeLang!=='es')toggleLanguage()">ES</button>
+  <button type="button" id="navLangEn" class="on" onclick="if(activeLang!=='en')toggleLanguage()">EN</button>
+</div>
+</div>
 </nav>
 <!-- HERO SECTION CON FOTOGRAFÍA REAL COSTERA (IMG_4135) -->
 <section class="hero">
@@ -2244,7 +2294,7 @@
         f_notes: "Ubicación del Terreno o Requerimientos"
       },
       en: {
-        nav_about: "Who We Are",
+        nav_about: "About Us",
         nav_services: "Services",
         nav_gallery: "Project Showcase",
         nav_transparency: "Transparency Standard",
@@ -2362,6 +2412,10 @@
       document.querySelectorAll('.obs-link').forEach(a => {
         a.setAttribute('href', 'observatorio/?lang=' + activeLang);
       });
+      const bEs = document.getElementById('navLangEs');
+      const bEn = document.getElementById('navLangEn');
+      if (bEs) bEs.classList.toggle('on', activeLang === 'es');
+      if (bEn) bEn.classList.toggle('on', activeLang === 'en');
     }
     (function syncLangFromUrl() {
       const q = new URLSearchParams(window.location.search).get('lang');
