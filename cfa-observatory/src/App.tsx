@@ -123,10 +123,10 @@ const COPY = {
     connCostanera: 'Carretera Costanera (MTI)',
     connEci: 'Aeropuerto Costa Esmeralda (ECI)',
     connBorder: 'Frontera Peñas Blancas (CR)',
-    kNtl: 'Radiancia medida (suma)',
-    kBuilt: 'Índice de Plusvalía (2000=100)',
+    kNtl: 'Actividad nocturna vs. 2000',
+    kBuilt: 'Plusvalía estimada',
     kAir: 'Acceso aéreo (ECI)',
-    kGrowth: 'Crecimiento lumínico (2000–2024)',
+    kGrowth: 'Expansión eléctrica costera',
     chartTitle: 'Por qué la luz nocturna anticipa el valor del suelo costero',
     chartSub: 'La radiancia auditable NASA/NOAA VIIRS (500 m, VNL V2.1) demuestra dónde llegaron realmente la red eléctrica, el turismo y los servicios que sostienen la plusvalía (Base 2000 = 100)',
     footerLeft: 'Constructora Flores Aburto (CFA) · San Juan del Sur, Rivas, Nicaragua',
@@ -165,10 +165,10 @@ const COPY = {
     connCostanera: 'Costanera Highway (MTI)',
     connEci: 'Costa Esmeralda Airport (ECI)',
     connBorder: 'Peñas Blancas Border (CR)',
-    kNtl: 'Measured radiance (sum)',
-    kBuilt: 'Appreciation Index (2000=100)',
-    kAir: 'Air access (ECI)',
-    kGrowth: 'Light growth (2000–2024)',
+    kNtl: 'Nighttime activity vs. 2000',
+    kBuilt: 'Estimated equity gain',
+    kAir: 'Airport access (ECI)',
+    kGrowth: 'Coastal grid expansion',
     chartTitle: 'Why orbital night lights track coastal land value',
     chartSub: 'Auditable NASA/NOAA VIIRS radiance (500 m, VNL V2.1) proves where grid power, tourism, and services actually arrived—explaining why coastal equity compounds (Base 2000 = 100)',
     footerLeft: 'Constructora Flores Aburto (CFA) · San Juan del Sur, Rivas, Nicaragua',
@@ -459,10 +459,17 @@ export default function App() {
 
           <ul className="nav-links">
             <li><a href={`${siteBase}#about`} {...extProps}>{lang === 'es' ? 'Quiénes Somos' : 'About Us'}</a></li>
-            <li><a href={`${siteBase}#services`} {...extProps}>{lang === 'es' ? 'Servicios' : 'Engineering'}</a></li>
-            <li><a href={`${siteBase}#gallery`} {...extProps}>{lang === 'es' ? 'Obras' : 'Projects'}</a></li>
-            <li><a href="#observatorio" className="nav-active">{lang === 'es' ? 'Observatorio' : 'Observatory'}</a></li>
-            <li><a href={`${siteBase}#contact`} {...extProps}>{lang === 'es' ? 'Contacto' : 'Contact'}</a></li>
+            <li><a href={`${siteBase}#services`} {...extProps}>{lang === 'es' ? 'Servicios' : 'Services'}</a></li>
+            <li><a href="#inteligencia" className="nav-active">{lang === 'es' ? 'Inteligencia de Mercado' : 'Market Intelligence'}</a></li>
+            <li>
+              <a className="btn-portal" href={`${siteBase}portal/`} {...extProps}>
+                <svg fill="none" height="13" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" width="13" aria-hidden="true">
+                  <rect height="11" rx="2" ry="2" width="18" x="3" y="11" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+                <span>{lang === 'es' ? 'Portal Clientes' : 'Client Portal'}</span>
+              </a>
+            </li>
           </ul>
 
           <div className="segmented" role="group" aria-label="Language">
@@ -597,7 +604,7 @@ export default function App() {
                   <strong>{activeHub ? activeHub.name : t.allCorridor} · {year}</strong>
                   <span className="cfa-sensor-pill">{sensorForYear(year, lang)}</span>
                   <span className="num">
-                    {activePoint.nightLightSum.toLocaleString('en-US')} rad · {activePoint.litPixels ? `${activePoint.litPixels} px (500m)` : `${activePoint.builtHa} ha`}
+                    {(activePoint.nightLightSum / Math.max(1, activeSeries[0].nightLightSum)).toFixed(1)}× {lang === 'es' ? 'luz vs. 2000' : 'light vs. 2000'} · +{activePoint.plusvaliaIndex - 100}% {lang === 'es' ? 'plusvalía' : 'equity'}
                   </span>
                 </div>
                 <div className="cfa-map-legend">
@@ -655,17 +662,41 @@ export default function App() {
           </div>
 
           <section className="cfa-kpi-grid">
-            <Kpi label={t.kNtl} value={activePoint.nightLightSum.toLocaleString('en-US')} num color="var(--cfa-green)">
-              <span className="muted small">{year} · {sensorForYear(year, lang)}</span>
+            <Kpi
+              label={t.kNtl}
+              value={`${(activePoint.nightLightSum / Math.max(1, activeSeries[0].nightLightSum)).toFixed(1)}×`}
+              num
+              color="var(--cfa-green-hover)"
+            >
+              <span className="muted small">
+                {lang === 'es' ? `Año ${year} · Medición satelital NASA` : `Year ${year} · NASA satellite record`}
+              </span>
             </Kpi>
-            <Kpi label={t.kBuilt} value={`${activePoint.plusvaliaIndex} pts`} num>
-              <span className="muted small">100 (2000) → {activeSeries[activeSeries.length - 1].plusvaliaIndex} (2024)</span>
+            <Kpi label={t.kBuilt} value={`+${activePoint.plusvaliaIndex - 100}%`} num>
+              <span className="muted small">
+                {lang === 'es' ? `Valorización acumulada desde 2000` : `Estimated land equity gain since 2000`}
+              </span>
             </Kpi>
             <Kpi label={t.kAir} value={activeHub ? `${activeHub.eciAirportMin} min` : '14–48 min'} num>
-              <span className="muted small">Aeropuerto Costa Esmeralda</span>
+              <span className="muted small">
+                {lang === 'es' ? 'Aeropuerto Costa Esmeralda (Tola)' : 'Costa Esmeralda Airport (Tola)'}
+              </span>
             </Kpi>
-            <Kpi label={t.kGrowth} value={`+${(activeHub ? activeHub.ntlGrowthPct : CORRIDOR_GROWTH_PCT).toLocaleString('en-US')}%`} num color="var(--emerald)">
-              <span className="muted small">2000 → 2024 (GeoTIFF real)</span>
+            <Kpi
+              label={t.kGrowth}
+              value={
+                activeHub
+                  ? `+${activeHub.ntlGrowthPct.toLocaleString('en-US')}%`
+                  : `${activePoint.litPixels ?? 620} ${lang === 'es' ? 'zonas' : 'zones'}`
+              }
+              num
+              color="var(--cfa-green-hover)"
+            >
+              <span className="muted small">
+                {activeHub
+                  ? (lang === 'es' ? 'Crecimiento eléctrico y comercial (2000–2024)' : 'Grid & commercial growth (2000–2024)')
+                  : (lang === 'es' ? `De 110 zonas en 2000 a 620 en 2024 (+${CORRIDOR_GROWTH_PCT}%)` : `Up from 110 zones in 2000 to 620 in 2024 (+${CORRIDOR_GROWTH_PCT}%)`)}
+              </span>
             </Kpi>
           </section>
 
